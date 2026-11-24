@@ -1,11 +1,49 @@
 // ============================================================================
 // MÓDULO DE PERSISTÊNCIA LOCAL (localStorage) — GENIUS 3D WEB (UNICAP)
-// Responsável por salvar e recuperar recordes e preferências de acessibilidade,
-// áudio e dificuldade do jogador (Atende ao RTEC-03 e TST-05).
+// Responsável por salvar e recuperar recordes, pontos acumulados e preferências
+// de som, acessibilidade, tema, cor da carcaça e cenário 3D (RTEC-03 / TST-05).
 // ============================================================================
 
 export type Dificuldade = 'facil' | 'medio' | 'dificil';
 export type TemaVisual = 'escuro' | 'claro';
+export type CorCarcaca = 'creme' | 'grafite' | 'rosa' | 'menta' | 'celeste' | 'lavanda';
+export type Cenario3D = 'estudio' | 'gramado' | 'nuvens' | 'praia' | 'por_do_sol' | 'estrelas';
+
+/**
+ * Catálogo de cenários 3D e pontuação acumulada necessária para desbloqueio.
+ */
+export interface DefinicaoCenario {
+  id: Cenario3D;
+  nome: string;
+  icone: string;
+  pontosNecessarios: number;
+}
+
+export const CATALOGO_CENARIOS: readonly DefinicaoCenario[] = [
+  { id: 'estudio', nome: 'Estúdio', icone: '🎨', pontosNecessarios: 0 },
+  { id: 'gramado', nome: 'Gramado', icone: '🌿', pontosNecessarios: 0 },
+  { id: 'nuvens', nome: 'Céu Livre', icone: '☁️', pontosNecessarios: 0 },
+  { id: 'praia', nome: 'Praia', icone: '🏖️', pontosNecessarios: 5 },
+  { id: 'por_do_sol', nome: 'Pôr do Sol', icone: '🌅', pontosNecessarios: 12 },
+  { id: 'estrelas', nome: 'Estrelas', icone: '🌌', pontosNecessarios: 20 },
+];
+
+export const CORES_CARCACA_VALIDAS: readonly CorCarcaca[] = [
+  'creme',
+  'grafite',
+  'rosa',
+  'menta',
+  'celeste',
+  'lavanda',
+];
+
+/**
+ * Verifica se um cenário já está desbloqueado para a pontuação acumulada informada.
+ */
+export function cenarioEstaDesbloqueado(cenario: Cenario3D, pontosTotais: number): boolean {
+  const def = CATALOGO_CENARIOS.find((c) => c.id === cenario);
+  return def ? pontosTotais >= def.pontosNecessarios : false;
+}
 
 /**
  * Interface mínima compatível com window.localStorage.
@@ -23,10 +61,13 @@ export interface StorageLike {
 export interface PreferenciasSalvas {
   recordeSolo: number;
   recordeMultiplayer: number;
+  pontosTotais: number;
   somAtivo: boolean;
   dificuldade: Dificuldade;
   modoDaltonismo: boolean;
   tema: TemaVisual;
+  corCarcaca: CorCarcaca;
+  cenario: Cenario3D;
   quantidadeJogadores: number;
 }
 
@@ -38,10 +79,13 @@ const CHAVE_STORAGE = 'genius_3d_unicap_v1';
 export const PREFERENCIAS_PADRAO: PreferenciasSalvas = {
   recordeSolo: 0,
   recordeMultiplayer: 0,
+  pontosTotais: 0,
   somAtivo: true,
   dificuldade: 'medio',
   modoDaltonismo: false,
-  tema: 'escuro',
+  tema: 'claro',
+  corCarcaca: 'creme',
+  cenario: 'estudio',
   quantidadeJogadores: 1,
 };
 
@@ -79,8 +123,7 @@ export class RepositorioGenius {
   }
 
   /**
-   * Carrega todas as preferências e recordes salvos, aplicando valores padrão
-   * para campos ausentes ou inválidos.
+   * Carrega todas as preferências, recordes e pontos acumulados salvos.
    */
   public carregar(): PreferenciasSalvas {
     try {
@@ -91,6 +134,15 @@ export class RepositorioGenius {
 
       const dados = JSON.parse(bruto) as Partial<PreferenciasSalvas>;
       const dificuldadesValidas: Dificuldade[] = ['facil', 'medio', 'dificil'];
+      const cenariosValidos = CATALOGO_CENARIOS.map((c) => c.id);
+
+      const pontosTotais =
+        typeof dados.pontosTotais === 'number' && dados.pontosTotais >= 0 ? Math.floor(dados.pontosTotais) : 0;
+
+      const cenarioSalvo =
+        dados.cenario && cenariosValidos.includes(dados.cenario) && cenarioEstaDesbloqueado(dados.cenario, pontosTotais)
+          ? dados.cenario
+          : PREFERENCIAS_PADRAO.cenario;
 
       return {
         recordeSolo: typeof dados.recordeSolo === 'number' && dados.recordeSolo >= 0 ? Math.floor(dados.recordeSolo) : 0,
@@ -98,6 +150,7 @@ export class RepositorioGenius {
           typeof dados.recordeMultiplayer === 'number' && dados.recordeMultiplayer >= 0
             ? Math.floor(dados.recordeMultiplayer)
             : 0,
+        pontosTotais,
         somAtivo: typeof dados.somAtivo === 'boolean' ? dados.somAtivo : PREFERENCIAS_PADRAO.somAtivo,
         dificuldade:
           dados.dificuldade && dificuldadesValidas.includes(dados.dificuldade)
@@ -106,6 +159,11 @@ export class RepositorioGenius {
         modoDaltonismo:
           typeof dados.modoDaltonismo === 'boolean' ? dados.modoDaltonismo : PREFERENCIAS_PADRAO.modoDaltonismo,
         tema: dados.tema === 'claro' || dados.tema === 'escuro' ? dados.tema : PREFERENCIAS_PADRAO.tema,
+        corCarcaca:
+          dados.corCarcaca && CORES_CARCACA_VALIDAS.includes(dados.corCarcaca)
+            ? dados.corCarcaca
+            : PREFERENCIAS_PADRAO.corCarcaca,
+        cenario: cenarioSalvo,
         quantidadeJogadores:
           typeof dados.quantidadeJogadores === 'number' &&
           dados.quantidadeJogadores >= 1 &&
@@ -137,6 +195,17 @@ export class RepositorioGenius {
     const atualizado: PreferenciasSalvas = { ...atual, ...parcial };
     this.salvar(atualizado);
     return atualizado;
+  }
+
+  /**
+   * Soma pontos acumulados ao concluir rodadas (utilizado para desbloquear novos cenários 3D).
+   */
+  public adicionarPontos(quantidade: number): number {
+    if (quantidade <= 0) return this.carregar().pontosTotais;
+    const atual = this.carregar();
+    const novoTotal = atual.pontosTotais + Math.floor(quantidade);
+    this.salvar({ ...atual, pontosTotais: novoTotal });
+    return novoTotal;
   }
 
   /**

@@ -8,7 +8,7 @@
 import './ui/styles.css';
 import { SoundEngine } from './audio/soundEngine';
 import { ConfiguracaoTempo, CorGenius, EstadoPartidaSnapshot, GameEngine } from './core/gameEngine';
-import { Dificuldade, RepositorioGenius, TemaVisual } from './core/storage';
+import { Cenario3D, CorCarcaca, Dificuldade, RepositorioGenius, TemaVisual } from './core/storage';
 import { OnlineManager } from './network/onlineManager';
 import {
   criarLinkConvite,
@@ -37,7 +37,9 @@ class GeniusApp {
   // Token incremental que cancela com segurança qualquer sequência assíncrona anterior
   private tokenFluxo = 0;
   private modoDaltonismo = false;
-  private temaAtual: TemaVisual = 'escuro';
+  private temaAtual: TemaVisual = 'claro';
+  private corCarcacaAtual: CorCarcaca = 'creme';
+  private cenarioAtual: Cenario3D = 'estudio';
   private ultimaQtdJogadores = 1;
   private ultimaDificuldade: Dificuldade = 'medio';
 
@@ -51,6 +53,8 @@ class GeniusApp {
 
     this.modoDaltonismo = prefs.modoDaltonismo;
     this.temaAtual = prefs.tema;
+    this.corCarcacaAtual = prefs.corCarcaca;
+    this.cenarioAtual = prefs.cenario;
     this.ultimaQtdJogadores = prefs.quantidadeJogadores;
     this.ultimaDificuldade = prefs.dificuldade;
 
@@ -62,11 +66,18 @@ class GeniusApp {
       throw new Error('Container #canvas-container não encontrado.');
     }
 
-    this.scene = new GeniusScene(container, {
-      onQuadrantePressionado: (cor) => this.tratarEntradaJogador(cor),
-    });
+    this.scene = new GeniusScene(
+      container,
+      {
+        onQuadrantePressionado: (cor) => this.tratarEntradaJogador(cor),
+      },
+      {
+        corCarcaca: this.corCarcacaAtual,
+        tema: this.temaAtual,
+        cenario: this.cenarioAtual,
+      }
+    );
     this.scene.modelo.definirModoDaltonismo(this.modoDaltonismo);
-    this.scene.definirTemaVisual(this.temaAtual);
 
     this.online = new OnlineManager({
       onStatusConexao: (msg) => this.hud.exibirFeedbackOnline(msg, false),
@@ -115,6 +126,8 @@ class GeniusApp {
         this.hud.atualizarRecordeExibido(qtd > 1 ? atual.recordeMultiplayer : atual.recordeSolo);
       },
       onTeclaQuadrante: (cor) => this.tratarEntradaJogador(cor),
+      onAlterarCorCarcaca: (cor) => this.alterarCorCarcaca(cor),
+      onAlterarCenario: (cenario) => this.alterarCenario(cenario),
 
       // Ações da aba Multiplayer Online
       onCriarSalaOnline: (apelido, dif) => {
@@ -735,6 +748,8 @@ class GeniusApp {
   }
 
   private exibirFeedbackRodadaCompleta(snapshot: EstadoPartidaSnapshot, nomeProximo?: string): void {
+    const prefs = this.repositorio.carregar();
+    this.hud.atualizarCustomizacao(this.corCarcacaAtual, this.cenarioAtual, prefs.pontosTotais);
     this.hud.sincronizarEstado(snapshot, {
       emPartidaOnline: this.emPartidaOnline,
       meuJogadorId: this.online.obterMeuJogadorId(),
@@ -809,6 +824,20 @@ class GeniusApp {
     this.scene.definirTemaVisual(this.temaAtual);
     this.repositorio.atualizar({ tema: this.temaAtual });
     this.hud.atualizarBotaoTema(this.temaAtual);
+  }
+
+  private alterarCorCarcaca(cor: CorCarcaca): void {
+    this.corCarcacaAtual = cor;
+    this.scene.modelo.definirCorCarcaca(cor);
+    const prefs = this.repositorio.atualizar({ corCarcaca: cor });
+    this.hud.atualizarCustomizacao(this.corCarcacaAtual, this.cenarioAtual, prefs.pontosTotais);
+  }
+
+  private alterarCenario(cenario: Cenario3D): void {
+    this.cenarioAtual = cenario;
+    this.scene.definirCenario(cenario);
+    const prefs = this.repositorio.atualizar({ cenario });
+    this.hud.atualizarCustomizacao(this.corCarcacaAtual, this.cenarioAtual, prefs.pontosTotais);
   }
 
   private alternarDaltonismo(): void {

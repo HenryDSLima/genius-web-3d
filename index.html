@@ -21,75 +21,85 @@
 
     <!-- Camada 2: Interface HUD semântica, responsiva e acessível sobreposta ao 3D -->
     <div id="hud" class="hud">
-      <!-- Barra Superior: Marca, Placar e Ações Rápidas -->
+      <!-- Barra Superior em duas ilhas compactas flutuantes (sem atravessar a tela toda) -->
       <header class="topbar" aria-label="Barra de controle e placar">
-        <div class="brand">
+        <div class="topbar-island brand">
           <span class="brand-dot" aria-hidden="true"></span>
-          <div class="brand-text">
-            <h1 class="brand-title">GENIUS 3D</h1>
-            <span class="brand-sub">UNICAP • Robótica</span>
-          </div>
+          <h1 class="brand-title">GENIUS 3D</h1>
         </div>
 
-        <div class="scoreboard" aria-label="Placar da partida">
-          <div class="score-pill">
-            <span class="score-label">Rodada</span>
-            <strong id="valor-rodada" class="score-value">00</strong>
+        <div class="topbar-island topbar-right">
+          <div class="scoreboard" aria-label="Placar da partida">
+            <div class="score-pill">
+              <span class="score-label">Rodada</span>
+              <strong id="valor-rodada" class="score-value">00</strong>
+            </div>
+            <div class="score-pill score-pill-record">
+              <span class="score-label">Recorde</span>
+              <strong id="valor-recorde" class="score-value">00</strong>
+            </div>
           </div>
-          <div class="score-pill score-pill-record">
-            <span class="score-label">Recorde</span>
-            <strong id="valor-recorde" class="score-value">00</strong>
-          </div>
+
+          <nav class="topbar-actions" aria-label="Preferências e navegação">
+            <button
+              id="btn-som"
+              type="button"
+              class="icon-btn"
+              aria-label="Alternar som (Tecla M)"
+              aria-pressed="true"
+              title="Som Ligado/Desligado (M)"
+            >
+              <span id="icone-som" aria-hidden="true">🔊</span>
+              <span class="btn-label-desktop">Som</span>
+            </button>
+
+            <button
+              id="btn-tema"
+              type="button"
+              class="icon-btn"
+              aria-label="Alternar tema claro ou escuro (Tecla T)"
+              aria-pressed="true"
+              title="Modo Claro / Escuro (T)"
+            >
+              <span id="icone-tema" aria-hidden="true">☀️</span>
+              <span id="label-tema" class="btn-label-desktop">Claro</span>
+            </button>
+
+            <button
+              id="btn-customizar"
+              type="button"
+              class="icon-btn"
+              aria-label="Personalizar cor da carcaça e cenários 3D (Tecla C)"
+              title="Personalizar Visual (C)"
+            >
+              <span aria-hidden="true">🎨</span>
+              <span class="btn-label-desktop">Visual</span>
+            </button>
+
+            <button
+              id="btn-daltonismo"
+              type="button"
+              class="icon-btn"
+              aria-label="Ativar modo daltonismo e alto contraste (Tecla D)"
+              aria-pressed="false"
+              title="Modo Daltonismo / Símbolos (D)"
+            >
+              <span aria-hidden="true">◐</span>
+              <span class="btn-label-desktop">Acessível</span>
+            </button>
+
+            <button
+              id="btn-menu"
+              type="button"
+              class="icon-btn icon-btn-menu hidden"
+              aria-label="Voltar ao Menu e Câmera 3D (Tecla Esc)"
+              title="Menu / Câmera 3D (Esc)"
+            >
+              <span aria-hidden="true">↺</span>
+              <span class="btn-label-desktop">Menu 3D</span>
+            </button>
+          </nav>
         </div>
-
-        <nav class="topbar-actions" aria-label="Preferências e navegação">
-          <button
-            id="btn-som"
-            type="button"
-            class="icon-btn"
-            aria-label="Alternar som (Tecla M)"
-            aria-pressed="true"
-            title="Som Ligado/Desligado (M)"
-          >
-            <span id="icone-som" aria-hidden="true">🔊</span>
-            <span class="btn-label-desktop">Som</span>
-          </button>
-
-          <button
-            id="btn-tema"
-            type="button"
-            class="icon-btn"
-            aria-label="Alternar tema claro ou escuro (Tecla T)"
-            aria-pressed="false"
-            title="Modo Claro / Escuro (T)"
-          >
-            <span id="icone-tema" aria-hidden="true">🌙</span>
-            <span id="label-tema" class="btn-label-desktop">Escuro</span>
-          </button>
-
-          <button
-            id="btn-daltonismo"
-            type="button"
-            class="icon-btn"
-            aria-label="Ativar modo daltonismo e alto contraste (Tecla D)"
-            aria-pressed="false"
-            title="Modo Daltonismo / Símbolos (D)"
-          >
-            <span aria-hidden="true">◐</span>
-            <span class="btn-label-desktop">Acessível</span>
-          </button>
-
-          <button
-            id="btn-menu"
-            type="button"
-            class="icon-btn icon-btn-menu hidden"
-            aria-label="Voltar ao Menu e Câmera 3D (Tecla Esc)"
-            title="Menu / Câmera 3D (Esc)"
-          >
-            <span aria-hidden="true">↺</span>
-            <span class="btn-label-desktop">Menu 3D</span>
-          </button>
-        </nav>
       </header>
 
       <!-- Faixa de Status do Sistema (Heurística de Nielsen + aria-live para leitores de tela) -->
@@ -263,6 +273,43 @@
             <button id="btn-reiniciar" type="button" class="primary-btn">Jogar Novamente</button>
             <button id="btn-modal-menu" type="button" class="secondary-btn">Voltar ao Menu 3D</button>
           </div>
+        </div>
+      </div>
+
+      <!-- Modal de Customização Visual (Cor da Carcaça + Cenários Desbloqueáveis) -->
+      <div
+        id="custom-modal"
+        class="modal-backdrop hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="custom-titulo"
+      >
+        <div class="modal-card custom-modal-card">
+          <div class="custom-header">
+            <h2 id="custom-titulo" class="modal-title custom-title">Personalizar</h2>
+            <span id="custom-pontos" class="points-pill" title="Ganhe pontos completando rodadas para desbloquear cenários">
+              ⭐ 0 pts
+            </span>
+          </div>
+
+          <div class="custom-section">
+            <span class="control-label">Cor da Carcaça</span>
+            <div id="swatch-grid" class="swatch-grid" role="group" aria-label="Cores da carcaça do Genius">
+              <button type="button" class="swatch-btn" data-carcaca="creme" title="Creme Tomodachi" aria-label="Carcaça Creme"></button>
+              <button type="button" class="swatch-btn" data-carcaca="grafite" title="Grafite Clássico" aria-label="Carcaça Grafite"></button>
+              <button type="button" class="swatch-btn" data-carcaca="rosa" title="Rosa Pastel" aria-label="Carcaça Rosa"></button>
+              <button type="button" class="swatch-btn" data-carcaca="menta" title="Verde Menta" aria-label="Carcaça Menta"></button>
+              <button type="button" class="swatch-btn" data-carcaca="celeste" title="Azul Celeste" aria-label="Carcaça Celeste"></button>
+              <button type="button" class="swatch-btn" data-carcaca="lavanda" title="Lavanda" aria-label="Carcaça Lavanda"></button>
+            </div>
+          </div>
+
+          <div class="custom-section">
+            <span class="control-label">Cenário 3D (Desbloqueie com pontos)</span>
+            <div id="cenario-grid" class="cenario-grid" role="group" aria-label="Cenários 3D"></div>
+          </div>
+
+          <button id="btn-fechar-custom" type="button" class="primary-btn">Concluir</button>
         </div>
       </div>
     </div>

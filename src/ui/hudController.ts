@@ -7,7 +7,15 @@
 // ============================================================================
 
 import { CorGenius, EstadoPartidaSnapshot, Jogador } from '../core/gameEngine';
-import { Dificuldade, PreferenciasSalvas, TemaVisual } from '../core/storage';
+import {
+  CATALOGO_CENARIOS,
+  Cenario3D,
+  cenarioEstaDesbloqueado,
+  CorCarcaca,
+  Dificuldade,
+  PreferenciasSalvas,
+  TemaVisual,
+} from '../core/storage';
 import { PapelOnline } from '../network/onlineManager';
 import { EstadoLobbyOnline, normalizarCodigoSala } from '../network/onlineProtocol';
 
@@ -24,6 +32,8 @@ export interface CallbacksHud {
   onAlterarDificuldade: (dificuldade: Dificuldade) => void;
   onAlterarQuantidadeJogadores: (quantidade: number) => void;
   onTeclaQuadrante: (cor: CorGenius) => void;
+  onAlterarCorCarcaca: (cor: CorCarcaca) => void;
+  onAlterarCenario: (cenario: Cenario3D) => void;
 
   // Callbacks do Multiplayer Online (WebRTC / PeerJS)
   onCriarSalaOnline: (apelido: string, dificuldade: Dificuldade) => void;
@@ -72,6 +82,7 @@ export class HudController {
   private readonly btnTema: HTMLButtonElement;
   private readonly iconeTema: HTMLElement;
   private readonly labelTema: HTMLElement;
+  private readonly btnCustomizar: HTMLButtonElement;
   private readonly btnDaltonismo: HTMLButtonElement;
   private readonly btnMenu: HTMLButtonElement;
   private readonly elStatusBanner: HTMLElement;
@@ -86,6 +97,13 @@ export class HudController {
   private readonly elModalRanking: HTMLElement;
   private readonly btnReiniciar: HTMLButtonElement;
   private readonly btnModalMenu: HTMLButtonElement;
+
+  // Referências do Modal de Customização Visual
+  private readonly elCustomModal: HTMLElement;
+  private readonly elCustomPontos: HTMLElement;
+  private readonly elCenarioGrid: HTMLElement;
+  private readonly btnFecharCustom: HTMLButtonElement;
+  private readonly botoesCarcaca: HTMLButtonElement[];
 
   // Referências das abas e painel Online
   private readonly tabLocal: HTMLButtonElement;
@@ -130,6 +148,7 @@ export class HudController {
     this.btnTema = this.obterElemento('btn-tema') as HTMLButtonElement;
     this.iconeTema = this.obterElemento('icone-tema');
     this.labelTema = this.obterElemento('label-tema');
+    this.btnCustomizar = this.obterElemento('btn-customizar') as HTMLButtonElement;
     this.btnDaltonismo = this.obterElemento('btn-daltonismo') as HTMLButtonElement;
     this.btnMenu = this.obterElemento('btn-menu') as HTMLButtonElement;
     this.elStatusBanner = this.obterElemento('status-banner');
@@ -144,6 +163,12 @@ export class HudController {
     this.elModalRanking = this.obterElemento('modal-ranking');
     this.btnReiniciar = this.obterElemento('btn-reiniciar') as HTMLButtonElement;
     this.btnModalMenu = this.obterElemento('btn-modal-menu') as HTMLButtonElement;
+
+    this.elCustomModal = this.obterElemento('custom-modal');
+    this.elCustomPontos = this.obterElemento('custom-pontos');
+    this.elCenarioGrid = this.obterElemento('cenario-grid');
+    this.btnFecharCustom = this.obterElemento('btn-fechar-custom') as HTMLButtonElement;
+    this.botoesCarcaca = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-carcaca]'));
 
     this.tabLocal = this.obterElemento('tab-local') as HTMLButtonElement;
     this.tabOnline = this.obterElemento('tab-online') as HTMLButtonElement;
@@ -186,6 +211,7 @@ export class HudController {
     this.atualizarBotaoSom(prefs.somAtivo);
     this.atualizarBotaoTema(prefs.tema);
     this.atualizarBotaoDaltonismo(prefs.modoDaltonismo);
+    this.atualizarCustomizacao(prefs.corCarcaca, prefs.cenario, prefs.pontosTotais);
     this.marcarBotaoJogadores(prefs.quantidadeJogadores);
     this.marcarBotaoDificuldade(prefs.dificuldade);
     this.marcarBotaoDificuldadeOnline(prefs.dificuldade);
@@ -247,6 +273,31 @@ export class HudController {
       this.callbacks.onSomCliqueUI();
       this.callbacks.onAlternarTema();
     });
+
+    this.btnCustomizar.addEventListener('click', () => {
+      this.callbacks.onSomCliqueUI();
+      this.elCustomModal.classList.remove('hidden');
+    });
+
+    this.btnFecharCustom.addEventListener('click', () => {
+      this.callbacks.onSomVoltarUI();
+      this.elCustomModal.classList.add('hidden');
+    });
+
+    this.elCustomModal.addEventListener('click', (evento) => {
+      if (evento.target === this.elCustomModal) {
+        this.callbacks.onSomVoltarUI();
+        this.elCustomModal.classList.add('hidden');
+      }
+    });
+
+    for (const btn of this.botoesCarcaca) {
+      btn.addEventListener('click', () => {
+        this.callbacks.onSomCliqueUI();
+        const cor = (btn.dataset.carcaca as CorCarcaca) || 'creme';
+        this.callbacks.onAlterarCorCarcaca(cor);
+      });
+    }
 
     this.btnDaltonismo.addEventListener('click', () => {
       this.callbacks.onSomCliqueUI();
@@ -440,10 +491,24 @@ export class HudController {
       return;
     }
 
-    if (tecla === 'escape' && this.estadoAtual !== 'MENU') {
+    if (tecla === 'c') {
       evento.preventDefault();
-      this.callbacks.onVoltarMenu();
+      const estaFechado = this.elCustomModal.classList.contains('hidden');
+      this.elCustomModal.classList.toggle('hidden', !estaFechado);
       return;
+    }
+
+    if (tecla === 'escape') {
+      if (!this.elCustomModal.classList.contains('hidden')) {
+        evento.preventDefault();
+        this.elCustomModal.classList.add('hidden');
+        return;
+      }
+      if (this.estadoAtual !== 'MENU') {
+        evento.preventDefault();
+        this.callbacks.onVoltarMenu();
+        return;
+      }
     }
 
     if (tecla === ' ' || tecla === 'enter') {
@@ -505,6 +570,47 @@ export class HudController {
   public atualizarBotaoDaltonismo(ativo: boolean): void {
     this.btnDaltonismo.setAttribute('aria-pressed', String(ativo));
     document.body.classList.toggle('alto-contraste', ativo);
+  }
+
+  /**
+   * Atualiza o modal de customização (pontos acumulados, cor ativa da carcaça e cenários desbloqueados).
+   */
+  public atualizarCustomizacao(corAtiva: CorCarcaca, cenarioAtivo: Cenario3D, pontosTotais: number): void {
+    this.elCustomPontos.textContent = `⭐ ${pontosTotais} pts`;
+
+    for (const btn of this.botoesCarcaca) {
+      btn.classList.toggle('active', btn.dataset.carcaca === corAtiva);
+    }
+
+    this.elCenarioGrid.innerHTML = '';
+    for (const item of CATALOGO_CENARIOS) {
+      const desbloqueado = cenarioEstaDesbloqueado(item.id, pontosTotais);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cenario-btn';
+      if (item.id === cenarioAtivo) btn.classList.add('active');
+      if (!desbloqueado) {
+        btn.classList.add('bloqueado');
+        btn.disabled = true;
+      }
+
+      const meta = desbloqueado
+        ? item.id === cenarioAtivo
+          ? 'Ativo'
+          : 'Livre'
+        : `🔒 ${item.pontosNecessarios} pts`;
+
+      btn.innerHTML = `<span class="cenario-icone" aria-hidden="true">${item.icone}</span><span>${item.nome}</span><span class="cenario-meta">${meta}</span>`;
+
+      if (desbloqueado) {
+        btn.addEventListener('click', () => {
+          this.callbacks.onSomCliqueUI();
+          this.callbacks.onAlterarCenario(item.id);
+        });
+      }
+
+      this.elCenarioGrid.appendChild(btn);
+    }
   }
 
   public atualizarRecordeExibido(recorde: number): void {

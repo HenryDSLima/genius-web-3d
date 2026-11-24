@@ -8,10 +8,10 @@
    ============================================================================ */
 
 :root {
-  /* Cursores cartoon SVG com contorno escuro grosso (estilo Tomodachi / Just Volleyball) */
-  --cursor-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M5 3.5 L21 15.2 L13.8 16.5 L17.2 23.5 L13.6 25.1 L10.2 18.1 L5.4 22 Z' fill='%23ffffff' stroke='%231e2436' stroke-width='2.4' stroke-linejoin='round'/%3E%3C/svg%3E") 5 3, auto;
-  --cursor-hand: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M12 4.5 C12 2.8 14.8 2.8 14.8 4.5 L14.8 13.2 C15.7 12.1 17.8 12.2 18.1 13.7 C19.1 12.7 21.1 13 21.3 14.6 C22.5 13.8 24.4 14.6 24.4 16.5 L24.4 21.2 C24.4 25.5 21.4 28.5 17 28.5 L13.5 28.5 C10.4 28.5 8.5 26.6 6.8 23.4 L4.7 19.6 C3.8 18 5.2 16.2 6.9 16.9 L9.8 18.4 L9.8 13.5 L12 13.5 Z' fill='%23ffffff' stroke='%231e2436' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 12 4, pointer;
-  --cursor-grab: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M9.5 14 L9.5 8.5 C9.5 7 11.8 7 11.8 8.5 L11.8 13 L12.4 7 C12.4 5.4 14.9 5.4 14.9 7 L14.9 13 L15.6 7.5 C15.6 5.9 18.1 5.9 18.1 7.5 L18.1 13.2 L18.9 9.2 C18.9 7.8 21.2 7.8 21.2 9.4 L21.2 18.2 C21.2 23.8 18.3 27.5 13.8 27.5 C10.1 27.5 7.5 24.8 6.4 21.2 L5.1 17.2 C4.5 15.4 6.5 14 8 15.2 Z' fill='%23ffffff' stroke='%231e2436' stroke-width='2.2' stroke-linejoin='round'/%3E%3C/svg%3E") 14 14, grab;
+  /* Cursores cartoon SVG inclinados (estilo Tomodachi Life, dedo indicador claramente à esquerda) */
+  --cursor-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M5 3.5 L21.5 14.5 L14.2 16.2 L17.4 23 L13.8 24.7 L10.5 17.9 L5.6 22 Z' fill='%23ffffff' stroke='%231e2436' stroke-width='2.4' stroke-linejoin='round'/%3E%3C/svg%3E") 5 3, auto;
+  --cursor-hand: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg transform='rotate(-26 14 14)'%3E%3Cpath d='M10 3.5 C10 1.8 13.4 1.8 13.4 3.5 L13.4 12.2 C14.6 11.4 16.8 11.8 17 13.4 C18.2 12.6 20.3 13.2 20.4 14.8 C21.7 14.3 23.5 15.2 23.5 17 L23.5 21.8 C23.5 25.8 20.5 28.5 16.4 28.5 L13.2 28.5 C10 28.5 8 26.8 6.4 23.5 L4.6 19.8 C3.8 18.2 5.4 16.4 7.2 17.2 L10 18.6 Z' fill='%23ffffff' stroke='%231e2436' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M13.4 12.2 L13.4 16.5 M17 13.4 L17 17.2 M20.4 14.8 L20.4 18' stroke='%231e2436' stroke-width='1.9' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E") 6 4, pointer;
+  --cursor-grab: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Ccircle cx='15' cy='15' r='11.5' fill='%23ffffff' stroke='%231e2436' stroke-width='2.3'/%3E%3Cpath d='M15 8 L18 11.5 H12 Z M15 22 L18 18.5 H12 Z M8 15 L11.5 12 V18 Z M22 15 L18.5 12 V18 Z' fill='%231e2436'/%3E%3C/svg%3E") 15 15, grab;
 
   /* Padrão ondulado estilo Tomodachi Life (amarelo/laranja ensolarado) */
   --wavy-sunny: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24' viewBox='0 0 48 24'%3E%3Cpath d='M0 12 Q 12 4, 24 12 T 48 12' fill='none' stroke='rgba(255,255,255,0.34)' stroke-width='4.5' stroke-linecap='round'/%3E%3C/svg%3E");
@@ -124,25 +124,37 @@ button,
   display: none !important;
 }
 
-/* ======================== BARRA SUPERIOR (ESTILO JUST VOLLEYBALL) ======================== */
+/* ======================== BARRA SUPERIOR (ILHAS COMPACTAS FLUTUANTES) ======================== */
 .topbar {
-  pointer-events: auto;
+  pointer-events: none;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 0.65rem;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.topbar-island {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   flex-wrap: wrap;
   background: var(--surface-card);
   border: 2px solid var(--border-card);
   border-radius: var(--radius-pill);
-  padding: 0.45rem 0.85rem;
-  box-shadow: 0 5px 0 var(--btn-lip), 0 12px 28px var(--shadow-soft);
+  padding: 0.42rem 0.78rem;
+  box-shadow: 0 5px 0 var(--btn-lip), 0 12px 26px var(--shadow-soft);
 }
 
 .brand {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
+  gap: 0.55rem;
+  padding: 0.58rem 0.95rem;
+}
+
+.topbar-right {
+  margin-left: auto;
+  justify-content: flex-end;
 }
 
 .brand-dot {
@@ -151,22 +163,15 @@ button,
   border-radius: 50%;
   background: conic-gradient(#2dd46c 0 90deg, #ff5c6c 90deg 180deg, #3b9eff 180deg 270deg, #ffd43b 270deg 360deg);
   border: 2.5px solid #ffffff;
-  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.28);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.24);
   flex-shrink: 0;
 }
 
 .brand-title {
-  font-size: clamp(1rem, 2.3vw, 1.25rem);
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
   font-weight: 700;
   letter-spacing: 0.02em;
   line-height: 1.05;
-}
-
-.brand-sub {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text-secondary);
 }
 
 .scoreboard {
@@ -846,6 +851,129 @@ button,
   margin-top: 0.25rem;
 }
 
+/* ======================== MODAL DE CUSTOMIZAÇÃO VISUAL ======================== */
+.custom-modal-card {
+  max-width: 29rem;
+  text-align: left;
+  gap: 1rem;
+}
+
+.custom-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.custom-title {
+  font-size: 1.5rem;
+}
+
+.points-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-pill);
+  background: var(--sunny);
+  color: var(--text-on-sunny);
+  font-size: 0.92rem;
+  font-weight: 800;
+  box-shadow: 0 3px 0 var(--btn-lip-accent);
+}
+
+.custom-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.5rem;
+}
+
+.swatch-btn {
+  min-width: 48px;
+  min-height: 48px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  border: 3px solid var(--border-card);
+  box-shadow: 0 4px 0 var(--btn-lip);
+  transition: transform 0.22s var(--spring), border-color 0.16s ease;
+}
+
+.swatch-btn:hover {
+  transform: translateY(-2px) scale(1.08);
+}
+
+.swatch-btn.active {
+  border-color: var(--sunny);
+  box-shadow: 0 0 0 3px var(--sunny), 0 4px 0 var(--btn-lip-accent);
+  transform: scale(1.08);
+}
+
+.swatch-btn[data-carcaca='creme'] { background: #fff7e2; }
+.swatch-btn[data-carcaca='grafite'] { background: #262d3d; }
+.swatch-btn[data-carcaca='rosa'] { background: #ffb3c6; }
+.swatch-btn[data-carcaca='menta'] { background: #9decc8; }
+.swatch-btn[data-carcaca='celeste'] { background: #93d0ff; }
+.swatch-btn[data-carcaca='lavanda'] { background: #cab5ff; }
+
+.cenario-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.cenario-btn {
+  min-height: 68px;
+  padding: 0.5rem 0.45rem;
+  border-radius: 1.15rem;
+  border: 2px solid var(--border-card);
+  background: var(--surface-pill);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 4px 0 var(--btn-lip);
+  transition: transform 0.22s var(--spring), border-color 0.16s ease;
+}
+
+.cenario-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.03);
+}
+
+.cenario-btn.active {
+  background-color: var(--sunny);
+  background-image: var(--wavy-sunny);
+  background-size: 48px 24px;
+  color: var(--text-on-sunny);
+  border-color: #ffffff;
+  box-shadow: 0 4px 0 var(--btn-lip-accent);
+}
+
+.cenario-btn.bloqueado {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+.cenario-icone {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.cenario-meta {
+  font-size: 0.72rem;
+  opacity: 0.85;
+}
+
 /* ======================== FOCO ACESSÍVEL (TECLADO) ======================== */
 button:focus-visible {
   outline: 3.5px solid #ffd43b;
@@ -983,20 +1111,40 @@ body.alto-contraste .seg-btn.active {
 
 /* ======================== RESPONSIVIDADE (360px a 1920px+) ======================== */
 @media (max-width: 680px) {
-  .brand-sub,
   .btn-label-desktop {
     display: none;
   }
 
   .topbar {
-    border-radius: 1.5rem;
-    padding: 0.42rem 0.6rem;
     gap: 0.4rem;
   }
 
+  .topbar-island {
+    border-radius: 1.45rem;
+    padding: 0.36rem 0.55rem;
+    gap: 0.35rem;
+  }
+
+  .brand {
+    padding: 0.45rem 0.72rem;
+  }
+
+  .topbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .score-pill {
-    min-width: 3.9rem;
-    padding: 0.2rem 0.5rem;
+    min-width: 3.7rem;
+    padding: 0.18rem 0.48rem;
+  }
+
+  .swatch-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cenario-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .menu-grid {

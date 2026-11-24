@@ -5,7 +5,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { CORES, GameEngine } from './gameEngine';
-import { criarStorageEmMemoria, RepositorioGenius } from './storage';
+import { cenarioEstaDesbloqueado, criarStorageEmMemoria, RepositorioGenius } from './storage';
 
 /**
  * Helper para criar um gerador determinístico de números [0, 1) a partir de índices de cor.
@@ -244,5 +244,36 @@ describe('GameEngine — Suíte TDD (RF-01 a RF-05 e RTEC-03)', () => {
     expect(res.jogadorEliminado?.nome).toBe('Convidado');
     expect(res.vencedor?.nome).toBe('Host');
     expect(engine.obterEstado().estado).toBe('GAME_OVER');
+  });
+
+  // --------------------------------------------------------------------------
+  // Teste complementar: Acúmulo de pontos e desbloqueio de cenários 3D
+  // --------------------------------------------------------------------------
+  it('deve acumular pontos ao completar rodadas e desbloquear cenários conforme a meta', () => {
+    const repo = new RepositorioGenius(criarStorageEmMemoria());
+    expect(cenarioEstaDesbloqueado('estudio', 0)).toBe(true);
+    expect(cenarioEstaDesbloqueado('gramado', 0)).toBe(true);
+    expect(cenarioEstaDesbloqueado('nuvens', 0)).toBe(true);
+    expect(cenarioEstaDesbloqueado('praia', 0)).toBe(false);
+
+    const engine = new GameEngine({
+      geradorAleatorio: criarGeradorFixo([0]),
+      repositorio: repo,
+    });
+    engine.iniciarPartida({ quantidadeJogadores: 1 });
+
+    // Completa 5 rodadas -> 5 pontos acumulados -> desbloqueia Praia (5 pts)
+    for (let i = 1; i <= 5; i++) {
+      engine.liberarEntradaJogador();
+      for (let passo = 0; passo < i; passo++) {
+        engine.registrarJogada('verde');
+      }
+      if (i < 5) engine.avancarProximaRodada();
+    }
+
+    const prefs = repo.carregar();
+    expect(prefs.pontosTotais).toBe(5);
+    expect(cenarioEstaDesbloqueado('praia', prefs.pontosTotais)).toBe(true);
+    expect(cenarioEstaDesbloqueado('estrelas', prefs.pontosTotais)).toBe(false);
   });
 });

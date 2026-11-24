@@ -273,6 +273,7 @@ export class GameEngine {
       const jogadorAtual = this.jogadores[this.indiceJogadorAtual];
       jogadorAtual.pontuacao += 1;
 
+      this.repositorio.adicionarPontos(1);
       const novoRecorde = this.repositorio.registrarPontuacao(
         jogadorAtual.pontuacao,
         this.modoMultiplayer
