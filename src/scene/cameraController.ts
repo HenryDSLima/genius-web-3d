@@ -33,6 +33,12 @@ export class CameraController {
   private readonly alvoInicial = new THREE.Vector3();
   private readonly alvoDestino = new THREE.Vector3(0, 0.2, 0);
 
+  // Deslocamento vertical do frustum (viewOffset) para elevar o modelo 3D
+  // acima do menu inferior apenas na tela inicial em celulares retrato.
+  private offsetVerticalInicial = 0;
+  private offsetVerticalAlvo = 0;
+  private offsetVerticalAtual = 0;
+
   constructor(camera: THREE.PerspectiveCamera, controls: OrbitControls) {
     this.camera = camera;
     this.controls = controls;
@@ -53,6 +59,48 @@ export class CameraController {
     const posShowcase = this.calcularPosicaoShowcase();
     this.camera.position.copy(posShowcase);
     this.controls.update();
+
+    this.offsetVerticalAlvo = this.calcularOffsetVerticalAlvo();
+    this.offsetVerticalAtual = this.offsetVerticalAlvo;
+    this.aplicarOffsetVertical();
+  }
+
+  /**
+   * Define o deslocamento vertical do enquadramento:
+   * - Em celulares retrato no menu inicial (SHOWCASE), eleva o modelo 3D em ~18.5%
+   *   da altura da tela para ficar centralizado entre a barra superior e o menu inferior.
+   * - No modo JOGANDO ou em telas paisagem/desktop, mantém centralização padrão (0).
+   */
+  private calcularOffsetVerticalAlvo(): number {
+    if (this.modoAtual === 'SHOWCASE' && this.camera.aspect < 0.78) {
+      return 0.185;
+    }
+    return 0;
+  }
+
+  /**
+   * Aplica o viewOffset na câmera sem alterar o pivô do OrbitControls.
+   */
+  private aplicarOffsetVertical(): void {
+    const largura = Math.max(1, window.innerWidth);
+    const altura = Math.max(1, window.innerHeight);
+
+    if (Math.abs(this.offsetVerticalAtual) < 0.0005) {
+      if (this.camera.view !== null) {
+        this.camera.clearViewOffset();
+      }
+      return;
+    }
+
+    // Valor positivo em Y desloca o frustum para baixo, elevando o modelo 3D na tela
+    this.camera.setViewOffset(
+      largura,
+      altura,
+      0,
+      Math.round(altura * this.offsetVerticalAtual),
+      largura,
+      altura
+    );
   }
 
   /**
@@ -103,6 +151,8 @@ export class CameraController {
     this.modoAtual = novoModo;
     this.posInicial.copy(this.camera.position);
     this.alvoInicial.copy(this.controls.target);
+    this.offsetVerticalInicial = this.offsetVerticalAtual;
+    this.offsetVerticalAlvo = this.calcularOffsetVerticalAlvo();
     this.progressoTransicao = 0;
     this.emTransicao = true;
 
@@ -125,6 +175,12 @@ export class CameraController {
    * ou gira o smartphone entre retrato e paisagem (RNF-01).
    */
   public aoRedimensionar(): void {
+    this.offsetVerticalAlvo = this.calcularOffsetVerticalAlvo();
+    if (!this.emTransicao) {
+      this.offsetVerticalAtual = this.offsetVerticalAlvo;
+    }
+    this.aplicarOffsetVertical();
+
     if (this.modoAtual === 'JOGANDO') {
       const novoDestino = this.calcularPosicaoTopDown();
       if (this.emTransicao) {
@@ -157,10 +213,14 @@ export class CameraController {
 
       this.camera.position.lerpVectors(this.posInicial, this.posDestino, t);
       this.controls.target.lerpVectors(this.alvoInicial, this.alvoDestino, t);
+      this.offsetVerticalAtual = THREE.MathUtils.lerp(this.offsetVerticalInicial, this.offsetVerticalAlvo, t);
+      this.aplicarOffsetVertical();
       this.camera.lookAt(this.controls.target);
 
       if (this.progressoTransicao >= 1) {
         this.emTransicao = false;
+        this.offsetVerticalAtual = this.offsetVerticalAlvo;
+        this.aplicarOffsetVertical();
         if (this.modoAtual === 'SHOWCASE') {
           this.controls.enabled = true;
           this.controls.autoRotate = true;
