@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="description"
+      content="Genius 3D Web (UNICAP - Robótica): Jogo interativo de memória sequencial em 3D com suporte a Multiplayer, Web Audio API e acessibilidade."
+    />
+    <title>Genius 3D Web — UNICAP</title>
+  </head>
+  <body>
+    <!-- Camada 1: Canvas WebGL 3D em tela cheia -->
+    <div id="canvas-container" class="canvas-container" role="application" aria-label="Cena 3D do jogo Genius"></div>
+
+    <!-- Camada 2: Interface HUD semântica, responsiva e acessível sobreposta ao 3D -->
+    <div id="hud" class="hud">
+      <!-- Barra Superior: Marca, Placar e Ações Rápidas -->
+      <header class="topbar" aria-label="Barra de controle e placar">
+        <div class="brand">
+          <span class="brand-dot" aria-hidden="true"></span>
+          <div class="brand-text">
+            <h1 class="brand-title">GENIUS 3D</h1>
+            <span class="brand-sub">UNICAP • Robótica</span>
+          </div>
+        </div>
+
+        <div class="scoreboard" aria-label="Placar da partida">
+          <div class="score-pill">
+            <span class="score-label">Rodada</span>
+            <strong id="valor-rodada" class="score-value">00</strong>
+          </div>
+          <div class="score-pill score-pill-record">
+            <span class="score-label">Recorde</span>
+            <strong id="valor-recorde" class="score-value">00</strong>
+          </div>
+        </div>
+
+        <nav class="topbar-actions" aria-label="Preferências e navegação">
+          <button
+            id="btn-som"
+            type="button"
+            class="icon-btn"
+            aria-label="Alternar som (Tecla M)"
+            aria-pressed="true"
+            title="Som Ligado/Desligado (M)"
+          >
+            <span id="icone-som" aria-hidden="true">🔊</span>
+            <span class="btn-label-desktop">Som</span>
+          </button>
+
+          <button
+            id="btn-daltonismo"
+            type="button"
+            class="icon-btn"
+            aria-label="Ativar modo daltonismo e alto contraste (Tecla D)"
+            aria-pressed="false"
+            title="Modo Daltonismo / Símbolos (D)"
+          >
+            <span aria-hidden="true">◐</span>
+            <span class="btn-label-desktop">Acessível</span>
+          </button>
+
+          <button
+            id="btn-menu"
+            type="button"
+            class="icon-btn icon-btn-menu hidden"
+            aria-label="Voltar ao Menu e Câmera 3D (Tecla Esc)"
+            title="Menu / Câmera 3D (Esc)"
+          >
+            <span aria-hidden="true">↺</span>
+            <span class="btn-label-desktop">Menu 3D</span>
+          </button>
+        </nav>
+      </header>
+
+      <!-- Faixa de Status do Sistema (Heurística de Nielsen + aria-live para leitores de tela) -->
+      <section class="status-area" aria-label="Status da partida">
+        <div id="status-banner" class="status-banner hidden" role="status" aria-live="polite">
+          Observe a sequência...
+        </div>
+
+        <!-- Placar de turnos no modo Multiplayer -->
+        <div id="multiplayer-strip" class="multiplayer-strip hidden" aria-label="Jogadores na partida"></div>
+      </section>
+
+      <!-- Dica de interação 3D visível apenas no Showcase -->
+      <p id="showcase-hint" class="showcase-hint" aria-hidden="true">
+        Arraste para girar o Genius 3D • Role ou faça pinça para zoom
+      </p>
+
+      <!-- Painel do Menu Inicial (posicionado na base para manter o Genius 3D em destaque) -->
+      <main id="menu-panel" class="menu-panel" aria-label="Configurações da partida">
+        <div class="menu-card">
+          <!-- Abas de Modo: Local vs Multiplayer Online -->
+          <div class="mode-tabs" role="tablist" aria-label="Tipo de partida">
+            <button
+              id="tab-local"
+              type="button"
+              role="tab"
+              class="mode-tab active"
+              aria-selected="true"
+              aria-controls="panel-local"
+            >
+              Local (Solo / 2–4P)
+            </button>
+            <button
+              id="tab-online"
+              type="button"
+              role="tab"
+              class="mode-tab"
+              aria-selected="false"
+              aria-controls="panel-online"
+            >
+              Online (Sala P2P)
+            </button>
+          </div>
+
+          <!-- Painel Local -->
+          <div id="panel-local" class="tab-panel" role="tabpanel" aria-labelledby="tab-local">
+            <div class="menu-grid">
+              <div class="control-group">
+                <span class="control-label" id="label-modo">Modo de Jogo</span>
+                <div class="segmented" role="group" aria-labelledby="label-modo">
+                  <button type="button" class="seg-btn active" data-jogadores="1">Solo</button>
+                  <button type="button" class="seg-btn" data-jogadores="2">2P</button>
+                  <button type="button" class="seg-btn" data-jogadores="3">3P</button>
+                  <button type="button" class="seg-btn" data-jogadores="4">4P</button>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <span class="control-label" id="label-dificuldade">Velocidade</span>
+                <div class="segmented" role="group" aria-labelledby="label-dificuldade">
+                  <button type="button" class="seg-btn" data-dificuldade="facil">Fácil</button>
+                  <button type="button" class="seg-btn active" data-dificuldade="medio">Médio</button>
+                  <button type="button" class="seg-btn" data-dificuldade="dificil">Difícil</button>
+                </div>
+              </div>
+            </div>
+
+            <button id="btn-iniciar" type="button" class="primary-btn">
+              Iniciar Partida
+            </button>
+          </div>
+
+          <!-- Painel Online (Criar / Entrar em Sala ou Lobby Conectado) -->
+          <div id="panel-online" class="tab-panel hidden" role="tabpanel" aria-labelledby="tab-online">
+            <!-- Sub-tela 1: Criar ou Entrar -->
+            <div id="online-connect-view" class="online-section">
+              <div class="online-row">
+                <label class="sr-only" for="input-apelido">Seu apelido</label>
+                <input
+                  id="input-apelido"
+                  type="text"
+                  class="text-input"
+                  maxlength="16"
+                  placeholder="Seu apelido (ex.: Ana)"
+                  autocomplete="nickname"
+                />
+                <button id="btn-criar-sala" type="button" class="primary-btn btn-compact">
+                  Criar Sala
+                </button>
+              </div>
+
+              <div class="online-divider" aria-hidden="true"><span>ou entrar com código</span></div>
+
+              <div class="online-row">
+                <label class="sr-only" for="input-codigo-sala">Código da sala</label>
+                <input
+                  id="input-codigo-sala"
+                  type="text"
+                  class="text-input input-code"
+                  maxlength="6"
+                  placeholder="CÓDIGO (6)"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                <button id="btn-entrar-sala" type="button" class="secondary-btn btn-compact">
+                  Entrar
+                </button>
+              </div>
+            </div>
+
+            <!-- Sub-tela 2: Lobby Conectado -->
+            <div id="online-lobby-view" class="online-section hidden">
+              <div class="lobby-header">
+                <div class="room-code-box">
+                  <span class="room-code-label">Sala</span>
+                  <strong id="lobby-codigo" class="room-code-value">------</strong>
+                </div>
+                <div class="lobby-header-actions">
+                  <button id="btn-copiar-convite" type="button" class="secondary-btn btn-mini">
+                    Copiar Link
+                  </button>
+                  <button id="btn-sair-sala" type="button" class="secondary-btn btn-mini btn-danger-outline">
+                    Sair
+                  </button>
+                </div>
+              </div>
+
+              <div id="lobby-jogadores" class="lobby-players" aria-label="Jogadores conectados na sala"></div>
+
+              <div id="lobby-dificuldade-box" class="control-group">
+                <span class="control-label">Velocidade da Sala</span>
+                <div class="segmented" role="group" aria-label="Velocidade da sala online">
+                  <button type="button" class="seg-btn" data-dificuldade-online="facil">Fácil</button>
+                  <button type="button" class="seg-btn active" data-dificuldade-online="medio">Médio</button>
+                  <button type="button" class="seg-btn" data-dificuldade-online="dificil">Difícil</button>
+                </div>
+              </div>
+
+              <button id="btn-iniciar-online" type="button" class="primary-btn" disabled>
+                Aguardando jogadores (1/4)...
+              </button>
+              <p id="lobby-guest-hint" class="lobby-hint hidden">
+                Aguardando o anfitrião iniciar a partida...
+              </p>
+            </div>
+
+            <p id="online-feedback" class="online-feedback hidden" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </main>
+
+      <!-- Rodapé discreto com legenda de atalhos de teclado e símbolos de acessibilidade -->
+      <footer id="hud-footer" class="hud-footer hidden" aria-label="Atalhos de teclado e legenda">
+        <div class="shortcut-pill"><kbd>1</kbd> / <kbd>Q</kbd> <span class="dot verde"></span> Verde ▲</div>
+        <div class="shortcut-pill"><kbd>2</kbd> / <kbd>W</kbd> <span class="dot vermelho"></span> Vermelho ●</div>
+        <div class="shortcut-pill"><kbd>3</kbd> / <kbd>A</kbd> <span class="dot amarelo"></span> Amarelo ■</div>
+        <div class="shortcut-pill"><kbd>4</kbd> / <kbd>S</kbd> <span class="dot azul"></span> Azul ◆</div>
+      </footer>
+
+      <!-- Modal de Fim de Jogo / Vencedor Multiplayer -->
+      <div
+        id="gameover-modal"
+        class="modal-backdrop hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-titulo"
+      >
+        <div class="modal-card">
+          <span id="modal-badge" class="modal-badge hidden">NOVO RECORDE!</span>
+          <h2 id="modal-titulo" class="modal-title">Game Over!</h2>
+          <p id="modal-subtitulo" class="modal-subtitle">Você alcançou a rodada 0.</p>
+
+          <div id="modal-ranking" class="modal-ranking hidden" aria-label="Classificação final"></div>
+
+          <div class="modal-actions">
+            <button id="btn-reiniciar" type="button" class="primary-btn">Jogar Novamente</button>
+            <button id="btn-modal-menu" type="button" class="secondary-btn">Voltar ao Menu 3D</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
