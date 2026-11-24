@@ -5,6 +5,7 @@
 // ============================================================================
 
 export type Dificuldade = 'facil' | 'medio' | 'dificil';
+export type TemaVisual = 'escuro' | 'claro';
 
 /**
  * Interface mínima compatível com window.localStorage.
@@ -25,6 +26,7 @@ export interface PreferenciasSalvas {
   somAtivo: boolean;
   dificuldade: Dificuldade;
   modoDaltonismo: boolean;
+  tema: TemaVisual;
   quantidadeJogadores: number;
 }
 
@@ -39,6 +41,7 @@ export const PREFERENCIAS_PADRAO: PreferenciasSalvas = {
   somAtivo: true,
   dificuldade: 'medio',
   modoDaltonismo: false,
+  tema: 'escuro',
   quantidadeJogadores: 1,
 };
 
@@ -102,6 +105,7 @@ export class RepositorioGenius {
             : PREFERENCIAS_PADRAO.dificuldade,
         modoDaltonismo:
           typeof dados.modoDaltonismo === 'boolean' ? dados.modoDaltonismo : PREFERENCIAS_PADRAO.modoDaltonismo,
+        tema: dados.tema === 'claro' || dados.tema === 'escuro' ? dados.tema : PREFERENCIAS_PADRAO.tema,
         quantidadeJogadores:
           typeof dados.quantidadeJogadores === 'number' &&
           dados.quantidadeJogadores >= 1 &&

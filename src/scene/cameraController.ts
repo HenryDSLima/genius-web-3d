@@ -66,16 +66,19 @@ export class CameraController {
   }
 
   /**
-   * Define o deslocamento vertical do enquadramento:
-   * - Em celulares retrato no menu inicial (SHOWCASE), eleva o modelo 3D em ~18.5%
-   *   da altura da tela para ficar centralizado entre a barra superior e o menu inferior.
-   * - No modo JOGANDO ou em telas paisagem/desktop, mantém centralização padrão (0).
+   * Define o deslocamento vertical do enquadramento no menu inicial (SHOWCASE):
+   * - Celular retrato (aspect < 0.78): eleva ~18.5% da altura da tela.
+   * - PC / tablet / paisagem: eleva ~14.5% para ficar centralizado acima do card de menu.
+   * - Modo JOGANDO (Top-Down): mantém centralização padrão (0).
    */
   private calcularOffsetVerticalAlvo(): number {
-    if (this.modoAtual === 'SHOWCASE' && this.camera.aspect < 0.78) {
+    if (this.modoAtual !== 'SHOWCASE') {
+      return 0;
+    }
+    if (this.camera.aspect < 0.78) {
       return 0.185;
     }
-    return 0;
+    return 0.145;
   }
 
   /**

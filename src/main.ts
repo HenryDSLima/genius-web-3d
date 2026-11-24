@@ -8,7 +8,7 @@
 import './ui/styles.css';
 import { SoundEngine } from './audio/soundEngine';
 import { ConfiguracaoTempo, CorGenius, EstadoPartidaSnapshot, GameEngine } from './core/gameEngine';
-import { Dificuldade, RepositorioGenius } from './core/storage';
+import { Dificuldade, RepositorioGenius, TemaVisual } from './core/storage';
 import { OnlineManager } from './network/onlineManager';
 import {
   criarLinkConvite,
@@ -37,6 +37,7 @@ class GeniusApp {
   // Token incremental que cancela com segurança qualquer sequência assíncrona anterior
   private tokenFluxo = 0;
   private modoDaltonismo = false;
+  private temaAtual: TemaVisual = 'escuro';
   private ultimaQtdJogadores = 1;
   private ultimaDificuldade: Dificuldade = 'medio';
 
@@ -49,6 +50,7 @@ class GeniusApp {
     const prefs = this.repositorio.carregar();
 
     this.modoDaltonismo = prefs.modoDaltonismo;
+    this.temaAtual = prefs.tema;
     this.ultimaQtdJogadores = prefs.quantidadeJogadores;
     this.ultimaDificuldade = prefs.dificuldade;
 
@@ -64,6 +66,7 @@ class GeniusApp {
       onQuadrantePressionado: (cor) => this.tratarEntradaJogador(cor),
     });
     this.scene.modelo.definirModoDaltonismo(this.modoDaltonismo);
+    this.scene.definirTemaVisual(this.temaAtual);
 
     this.online = new OnlineManager({
       onStatusConexao: (msg) => this.hud.exibirFeedbackOnline(msg, false),
@@ -99,6 +102,7 @@ class GeniusApp {
       },
       onVoltarMenu: () => this.voltarAoMenuShowcase(),
       onAlternarSom: () => this.alternarSom(),
+      onAlternarTema: () => this.alternarTema(),
       onAlternarDaltonismo: () => this.alternarDaltonismo(),
       onAlterarDificuldade: (dif) => {
         this.ultimaDificuldade = dif;
@@ -794,6 +798,13 @@ class GeniusApp {
     }
     this.repositorio.atualizar({ somAtivo: novoEstado });
     this.hud.atualizarBotaoSom(novoEstado);
+  }
+
+  private alternarTema(): void {
+    this.temaAtual = this.temaAtual === 'escuro' ? 'claro' : 'escuro';
+    this.scene.definirTemaVisual(this.temaAtual);
+    this.repositorio.atualizar({ tema: this.temaAtual });
+    this.hud.atualizarBotaoTema(this.temaAtual);
   }
 
   private alternarDaltonismo(): void {

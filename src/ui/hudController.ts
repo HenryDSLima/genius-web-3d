@@ -7,7 +7,7 @@
 // ============================================================================
 
 import { CorGenius, EstadoPartidaSnapshot, Jogador } from '../core/gameEngine';
-import { Dificuldade, PreferenciasSalvas } from '../core/storage';
+import { Dificuldade, PreferenciasSalvas, TemaVisual } from '../core/storage';
 import { PapelOnline } from '../network/onlineManager';
 import { EstadoLobbyOnline, normalizarCodigoSala } from '../network/onlineProtocol';
 
@@ -19,6 +19,7 @@ export interface CallbacksHud {
   onReiniciarPartida: () => void;
   onVoltarMenu: () => void;
   onAlternarSom: () => void;
+  onAlternarTema: () => void;
   onAlternarDaltonismo: () => void;
   onAlterarDificuldade: (dificuldade: Dificuldade) => void;
   onAlterarQuantidadeJogadores: (quantidade: number) => void;
@@ -62,11 +63,13 @@ export class HudController {
   private readonly elRecorde: HTMLElement;
   private readonly btnSom: HTMLButtonElement;
   private readonly iconeSom: HTMLElement;
+  private readonly btnTema: HTMLButtonElement;
+  private readonly iconeTema: HTMLElement;
+  private readonly labelTema: HTMLElement;
   private readonly btnDaltonismo: HTMLButtonElement;
   private readonly btnMenu: HTMLButtonElement;
   private readonly elStatusBanner: HTMLElement;
   private readonly elMultiplayerStrip: HTMLElement;
-  private readonly elShowcaseHint: HTMLElement;
   private readonly elMenuPanel: HTMLElement;
   private readonly elHudFooter: HTMLElement;
   private readonly btnIniciar: HTMLButtonElement;
@@ -118,11 +121,13 @@ export class HudController {
     this.elRecorde = this.obterElemento('valor-recorde');
     this.btnSom = this.obterElemento('btn-som') as HTMLButtonElement;
     this.iconeSom = this.obterElemento('icone-som');
+    this.btnTema = this.obterElemento('btn-tema') as HTMLButtonElement;
+    this.iconeTema = this.obterElemento('icone-tema');
+    this.labelTema = this.obterElemento('label-tema');
     this.btnDaltonismo = this.obterElemento('btn-daltonismo') as HTMLButtonElement;
     this.btnMenu = this.obterElemento('btn-menu') as HTMLButtonElement;
     this.elStatusBanner = this.obterElemento('status-banner');
     this.elMultiplayerStrip = this.obterElemento('multiplayer-strip');
-    this.elShowcaseHint = this.obterElemento('showcase-hint');
     this.elMenuPanel = this.obterElemento('menu-panel');
     this.elHudFooter = this.obterElemento('hud-footer');
     this.btnIniciar = this.obterElemento('btn-iniciar') as HTMLButtonElement;
@@ -173,6 +178,7 @@ export class HudController {
 
   private aplicarPreferenciasIniciais(prefs: PreferenciasSalvas): void {
     this.atualizarBotaoSom(prefs.somAtivo);
+    this.atualizarBotaoTema(prefs.tema);
     this.atualizarBotaoDaltonismo(prefs.modoDaltonismo);
     this.marcarBotaoJogadores(prefs.quantidadeJogadores);
     this.marcarBotaoDificuldade(prefs.dificuldade);
@@ -207,6 +213,10 @@ export class HudController {
 
     this.btnSom.addEventListener('click', () => {
       this.callbacks.onAlternarSom();
+    });
+
+    this.btnTema.addEventListener('click', () => {
+      this.callbacks.onAlternarTema();
     });
 
     this.btnDaltonismo.addEventListener('click', () => {
@@ -386,6 +396,12 @@ export class HudController {
       return;
     }
 
+    if (tecla === 't') {
+      evento.preventDefault();
+      this.callbacks.onAlternarTema();
+      return;
+    }
+
     if (tecla === 'escape' && this.estadoAtual !== 'MENU') {
       evento.preventDefault();
       this.callbacks.onVoltarMenu();
@@ -440,6 +456,14 @@ export class HudController {
     this.iconeSom.textContent = ativo ? '🔊' : '🔇';
   }
 
+  public atualizarBotaoTema(tema: TemaVisual): void {
+    const ehClaro = tema === 'claro';
+    this.btnTema.setAttribute('aria-pressed', String(ehClaro));
+    this.iconeTema.textContent = ehClaro ? '☀️' : '🌙';
+    this.labelTema.textContent = ehClaro ? 'Claro' : 'Escuro';
+    document.body.classList.toggle('tema-claro', ehClaro);
+  }
+
   public atualizarBotaoDaltonismo(ativo: boolean): void {
     this.btnDaltonismo.setAttribute('aria-pressed', String(ativo));
     document.body.classList.toggle('alto-contraste', ativo);
@@ -478,7 +502,6 @@ export class HudController {
     this.elRecorde.textContent = this.formatarNumero(snapshot.recordeAtual);
 
     this.elMenuPanel.classList.toggle('hidden', !estaNoMenu);
-    this.elShowcaseHint.classList.toggle('hidden', !estaNoMenu);
     this.btnMenu.classList.toggle('hidden', estaNoMenu);
     this.elStatusBanner.classList.toggle('hidden', estaNoMenu);
     this.elHudFooter.classList.toggle('hidden', estaNoMenu);

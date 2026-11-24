@@ -50,6 +50,18 @@
           </button>
 
           <button
+            id="btn-tema"
+            type="button"
+            class="icon-btn"
+            aria-label="Alternar tema claro ou escuro (Tecla T)"
+            aria-pressed="false"
+            title="Modo Claro / Escuro (T)"
+          >
+            <span id="icone-tema" aria-hidden="true">🌙</span>
+            <span id="label-tema" class="btn-label-desktop">Escuro</span>
+          </button>
+
+          <button
             id="btn-daltonismo"
             type="button"
             class="icon-btn"
@@ -83,11 +95,6 @@
         <!-- Placar de turnos no modo Multiplayer -->
         <div id="multiplayer-strip" class="multiplayer-strip hidden" aria-label="Jogadores na partida"></div>
       </section>
-
-      <!-- Dica de interação 3D visível apenas no Showcase -->
-      <p id="showcase-hint" class="showcase-hint" aria-hidden="true">
-        Arraste para girar o Genius 3D • Role ou faça pinça para zoom
-      </p>
 
       <!-- Painel do Menu Inicial (posicionado na base para manter o Genius 3D em destaque) -->
       <main id="menu-panel" class="menu-panel" aria-label="Configurações da partida">

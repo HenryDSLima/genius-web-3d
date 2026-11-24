@@ -7,6 +7,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { CorGenius } from '../core/gameEngine';
+import { TemaVisual } from '../core/storage';
 import { CameraController, ModoCamera } from './cameraController';
 import { GeniusModel } from './geniusModel';
 
@@ -20,6 +21,8 @@ export class GeniusScene {
   private readonly camera: THREE.PerspectiveCamera;
   private readonly renderer: THREE.WebGLRenderer;
   private readonly controls: OrbitControls;
+  private luzAmbiente!: THREE.HemisphereLight;
+  private matSuperficieApoio!: THREE.MeshStandardMaterial;
 
   public readonly modelo: GeniusModel;
   public readonly cameraController: CameraController;
@@ -84,8 +87,8 @@ export class GeniusScene {
   }
 
   private configurarIluminacao(): void {
-    const luzAmbiente = new THREE.HemisphereLight(0xdbeafe, 0x0f172a, 0.75);
-    this.scene.add(luzAmbiente);
+    this.luzAmbiente = new THREE.HemisphereLight(0xdbeafe, 0x0f172a, 0.75);
+    this.scene.add(this.luzAmbiente);
 
     const luzPrincipal = new THREE.DirectionalLight(0xffffff, 1.35);
     luzPrincipal.position.set(5.5, 11, 6.5);
@@ -111,15 +114,35 @@ export class GeniusScene {
   private construirSuperficieApoio(): void {
     const geoPlano = new THREE.CircleGeometry(14, 64);
     geoPlano.rotateX(-Math.PI / 2);
-    const matPlano = new THREE.MeshStandardMaterial({
+    this.matSuperficieApoio = new THREE.MeshStandardMaterial({
       color: 0x0c1322,
       roughness: 0.85,
       metalness: 0.12,
     });
-    const plano = new THREE.Mesh(geoPlano, matPlano);
+    const plano = new THREE.Mesh(geoPlano, this.matSuperficieApoio);
     plano.position.y = -0.47;
     plano.receiveShadow = true;
     this.scene.add(plano);
+  }
+
+  /**
+   * Alterna a iluminação ambiente, o fundo da cena e a mesa de apoio
+   * entre o Tema Escuro e o Tema Claro.
+   */
+  public definirTemaVisual(tema: TemaVisual): void {
+    if (tema === 'claro') {
+      this.scene.background = new THREE.Color(0xe2e8f0);
+      this.matSuperficieApoio.color.setHex(0xcbd5e1);
+      this.luzAmbiente.color.setHex(0xffffff);
+      this.luzAmbiente.groundColor.setHex(0x94a3b8);
+      this.luzAmbiente.intensity = 1.05;
+    } else {
+      this.scene.background = new THREE.Color(0x0b101b);
+      this.matSuperficieApoio.color.setHex(0x0c1322);
+      this.luzAmbiente.color.setHex(0xdbeafe);
+      this.luzAmbiente.groundColor.setHex(0x0f172a);
+      this.luzAmbiente.intensity = 0.75;
+    }
   }
 
   /**

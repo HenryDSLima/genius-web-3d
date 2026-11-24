@@ -286,18 +286,7 @@ body {
   border-color: rgba(239, 68, 68, 0.4);
 }
 
-/* ======================== DICA SHOWCASE E MENU ======================== */
-.showcase-hint {
-  align-self: center;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  background: rgba(15, 23, 42, 0.65);
-  padding: 0.35rem 0.9rem;
-  border-radius: 999px;
-  border: 1px solid var(--border-subtle);
-  text-align: center;
-}
-
+/* ======================== MENU INICIAL ======================== */
 .menu-panel {
   pointer-events: auto;
   width: 100%;
@@ -761,6 +750,99 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
+/* ======================== TEMA CLARO (MODO CLARO/ESCURO) ======================== */
+body.tema-claro {
+  --bg-dark: #e2e8f0;
+  --surface-glass: rgba(255, 255, 255, 0.86);
+  --surface-solid: #ffffff;
+  --border-subtle: rgba(15, 23, 42, 0.14);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --accent: #0284c7;
+  --accent-strong: #0284c7;
+  --shadow-lg: 0 14px 36px rgba(15, 23, 42, 0.14);
+}
+
+body.tema-claro .score-pill,
+body.tema-claro .segmented,
+body.tema-claro .mode-tabs,
+body.tema-claro .text-input,
+body.tema-claro .lobby-header {
+  background: rgba(226, 232, 240, 0.78);
+}
+
+body.tema-claro .score-pill-record .score-value {
+  color: #b45309;
+}
+
+body.tema-claro .icon-btn,
+body.tema-claro .secondary-btn,
+body.tema-claro .player-chip,
+body.tema-claro .lobby-player-badge,
+body.tema-claro .shortcut-pill,
+body.tema-claro .ranking-row {
+  background: rgba(241, 245, 249, 0.92);
+  color: var(--text-primary);
+}
+
+body.tema-claro .icon-btn:hover,
+body.tema-claro .secondary-btn:hover {
+  background: #e2e8f0;
+}
+
+body.tema-claro .mode-tab:hover,
+body.tema-claro .seg-btn:hover {
+  color: #0f172a;
+}
+
+body.tema-claro .mode-tab.active {
+  background: rgba(2, 132, 199, 0.16);
+  color: #0369a1;
+  border-color: rgba(2, 132, 199, 0.55);
+}
+
+body.tema-claro .seg-btn.active {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+body.tema-claro .status-banner {
+  background: rgba(255, 255, 255, 0.92);
+  color: #0f172a;
+}
+
+body.tema-claro .status-banner.status-sucesso {
+  color: #15803d;
+}
+
+body.tema-claro .status-banner.status-erro {
+  color: #b91c1c;
+}
+
+body.tema-claro .status-banner.status-aguardando {
+  color: #a16207;
+}
+
+body.tema-claro .shortcut-pill kbd {
+  background: rgba(15, 23, 42, 0.1);
+  color: #0f172a;
+}
+
+body.tema-claro .btn-danger-outline {
+  color: #b91c1c;
+  border-color: rgba(220, 38, 38, 0.45);
+}
+
+body.tema-claro .online-feedback.erro {
+  color: #b91c1c;
+}
+
+body.tema-claro .icon-btn[aria-pressed='true']#btn-daltonismo {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
 /* ======================== MODO ALTO CONTRASTE (RNF-03) ======================== */
 body.alto-contraste {
   --surface-glass: rgba(0, 0, 0, 0.94);
@@ -822,10 +904,6 @@ body.alto-contraste .seg-btn.active {
 
   .topbar {
     padding: 0.25rem 0.55rem;
-  }
-
-  .showcase-hint {
-    display: none;
   }
 
   .menu-panel {
