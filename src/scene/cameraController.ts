@@ -67,18 +67,16 @@ export class CameraController {
 
   /**
    * Define o deslocamento vertical do enquadramento no menu inicial (SHOWCASE):
-   * - Celular retrato (aspect < 0.78): eleva ~18.5% da altura da tela.
-   * - PC / tablet / paisagem: eleva ~14.5% para ficar centralizado acima do card de menu.
+   * - Celular retrato (aspect < 0.78): eleva ~18.5% da altura da tela para ficar
+   *   centralizado acima do menu inferior.
+   * - Desktop / paisagem: menu fica na lateral esquerda, então mantém centralizado (0).
    * - Modo JOGANDO (Top-Down): mantém centralização padrão (0).
    */
   private calcularOffsetVerticalAlvo(): number {
-    if (this.modoAtual !== 'SHOWCASE') {
-      return 0;
-    }
-    if (this.camera.aspect < 0.78) {
+    if (this.modoAtual === 'SHOWCASE' && this.camera.aspect < 0.78) {
       return 0.185;
     }
-    return 0.145;
+    return 0;
   }
 
   /**

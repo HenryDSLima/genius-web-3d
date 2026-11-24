@@ -1110,6 +1110,120 @@ body.alto-contraste .seg-btn.active {
 }
 
 /* ======================== RESPONSIVIDADE (360px a 1920px+) ======================== */
+
+/* Mobile e Tablets estreitos: mantém disposição original, movendo jogadores para a base */
+@media (max-width: 900px) {
+  .multiplayer-strip {
+    position: fixed;
+    left: 0.65rem;
+    right: 0.65rem;
+    bottom: max(0.85rem, env(safe-area-inset-bottom));
+    z-index: 15;
+    justify-content: center;
+  }
+}
+
+/* Desktop: Menu à esquerda, barra vertical à direita, jogadores à esquerda no multiplayer */
+@media (min-width: 901px) and (min-height: 520px) {
+  .brand {
+    position: fixed;
+    top: 1.25rem;
+    left: 1.5rem;
+    z-index: 15;
+  }
+
+  .topbar-right {
+    position: fixed;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 15;
+    flex-direction: column;
+    align-items: stretch;
+    border-radius: 1.75rem;
+    padding: 0.75rem 0.65rem;
+    gap: 0.6rem;
+    margin-left: 0;
+  }
+
+  .topbar-right .scoreboard {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    gap: 0.4rem;
+  }
+
+  .topbar-right .score-pill {
+    width: 100%;
+    min-width: 4.4rem;
+    padding: 0.25rem 0.45rem;
+  }
+
+  .topbar-right .topbar-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0.45rem;
+  }
+
+  .topbar-right .icon-btn {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0 1rem;
+  }
+
+  .menu-panel {
+    position: fixed;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 15;
+    margin: 0;
+    width: 22.5rem;
+    max-width: 30vw;
+  }
+
+  .menu-grid {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+  }
+
+  .status-banner {
+    position: fixed;
+    top: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
+  }
+
+  .multiplayer-strip {
+    position: fixed;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 15;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+    min-width: 11.5rem;
+  }
+
+  .multiplayer-strip .player-chip {
+    justify-content: space-between;
+    padding: 0.55rem 1rem;
+  }
+
+  .hud-footer {
+    position: fixed;
+    bottom: 1.15rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 14;
+    width: max-content;
+    max-width: 70vw;
+  }
+}
+
 @media (max-width: 680px) {
   .btn-label-desktop {
     display: none;
