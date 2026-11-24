@@ -1,5 +1,5 @@
 // ============================================================================
-// ORQUESTRADOR PRINCIPAL — GENIUS 3D WEB (UNICAP - ROBÓTICA)
+// ORQUESTRADOR PRINCIPAL — GENIUS 3D WEB (UNICAP - DESIGN DE INTERFACE E USABILIDADE)
 // Integra a máquina de estados pura (GameEngine), a cena 3D (GeniusScene),
 // o motor de áudio (SoundEngine), a persistência (RepositorioGenius),
 // o Multiplayer Online P2P (OnlineManager) e o HUD (HudController).

@@ -2,7 +2,7 @@
   "name": "genius-web-3d",
   "private": true,
   "version": "1.0.0",
-  "description": "Genius 3D Web - Aplicação web responsiva, acessível e 3D do jogo clássico Genius (Simon) com suporte a Multiplayer (UNICAP - Robótica).",
+  "description": "Genius 3D Web - Aplicação web responsiva, acessível e 3D do jogo clássico Genius (Simon) com suporte a Multiplayer Local e Online (UNICAP - Design de Interface e Usabilidade).",
   "type": "module",
   "scripts": {
     "dev": "vite",

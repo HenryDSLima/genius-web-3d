@@ -1,6 +1,8 @@
-# Genius 3D Web (UNICAP — Robótica)
+# Genius 3D Web (UNICAP — Design de Interface e Usabilidade)
 
-Aplicação web interativa, responsiva e acessível do clássico jogo de memória sequencial **Genius (Simon)** em 3D com suporte a **Modo Solo (1P)** e **Multiplayer Local por Turnos (2P a 4P)**, desenvolvida conforme o padrão **IEEE 830**, **Heurísticas de Nielsen**, **WCAG** e **TDD (Vitest)**.
+> **Jogue agora online:** https://henrydslima.github.io/genius-web-3d/
+
+Aplicação web interativa, responsiva e acessível do clássico jogo de memória sequencial **Genius (Simon)** em 3D com suporte a **Modo Solo (1P)**, **Multiplayer Local (2P a 4P)** e **Multiplayer Online P2P**, desenvolvida para a disciplina de **Design de Interface e Usabilidade (UNICAP)** seguindo o padrão **IEEE 830**, **Heurísticas de Nielsen**, **WCAG** e **TDD (Vitest)**.
 
 ## Recursos Principais
 
