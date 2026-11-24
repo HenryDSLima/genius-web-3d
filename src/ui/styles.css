@@ -1,26 +1,49 @@
 /* ============================================================================
-   ESTILOS RESPONSIVOS E ACESSÍVEIS (WCAG + NIELSEN) — GENIUS 3D WEB (UNICAP)
-   - Viewport 100% sem scroll horizontal (360px a 1920px+ — RNF-01)
-   - Área mínima de toque >= 48x48 px em todos os botões (RNF-03)
-   - Fonte legível >= 16px para status e feedbacks claros
-   - Suporte a Modo Daltonismo / Alto Contraste (body.alto-contraste)
+   ESTILO LÚDICO INSPIRADO EM TOMODACHI LIFE & JUST VOLLEYBALL — GENIUS 3D WEB
+   - Tipografia arredondada (Fredoka / Nunito) e botões pílula táteis com bounce
+   - Padrão ondulado animado nos botões ativos (assinatura Tomodachi Life)
+   - Cursores de mãozinha cartoon SVG (padrão, apontar e arrastar 3D)
+   - Modo Escuro (Just Volleyball Dark) & Modo Claro (Tomodachi Cream Light)
+   - Responsivo 360px–1920px+ (RNF-01) e WCAG >= 48x48px + Alto Contraste (RNF-03)
    ============================================================================ */
 
 :root {
-  --bg-dark: #0b101b;
-  --surface-glass: rgba(15, 23, 42, 0.78);
-  --surface-solid: #111827;
-  --border-subtle: rgba(148, 163, 184, 0.24);
+  /* Cursores cartoon SVG com contorno escuro grosso (estilo Tomodachi / Just Volleyball) */
+  --cursor-default: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cpath d='M5 3.5 L21 15.2 L13.8 16.5 L17.2 23.5 L13.6 25.1 L10.2 18.1 L5.4 22 Z' fill='%23ffffff' stroke='%231e2436' stroke-width='2.4' stroke-linejoin='round'/%3E%3C/svg%3E") 5 3, auto;
+  --cursor-hand: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M12 4.5 C12 2.8 14.8 2.8 14.8 4.5 L14.8 13.2 C15.7 12.1 17.8 12.2 18.1 13.7 C19.1 12.7 21.1 13 21.3 14.6 C22.5 13.8 24.4 14.6 24.4 16.5 L24.4 21.2 C24.4 25.5 21.4 28.5 17 28.5 L13.5 28.5 C10.4 28.5 8.5 26.6 6.8 23.4 L4.7 19.6 C3.8 18 5.2 16.2 6.9 16.9 L9.8 18.4 L9.8 13.5 L12 13.5 Z' fill='%23ffffff' stroke='%231e2436' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 12 4, pointer;
+  --cursor-grab: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M9.5 14 L9.5 8.5 C9.5 7 11.8 7 11.8 8.5 L11.8 13 L12.4 7 C12.4 5.4 14.9 5.4 14.9 7 L14.9 13 L15.6 7.5 C15.6 5.9 18.1 5.9 18.1 7.5 L18.1 13.2 L18.9 9.2 C18.9 7.8 21.2 7.8 21.2 9.4 L21.2 18.2 C21.2 23.8 18.3 27.5 13.8 27.5 C10.1 27.5 7.5 24.8 6.4 21.2 L5.1 17.2 C4.5 15.4 6.5 14 8 15.2 Z' fill='%23ffffff' stroke='%231e2436' stroke-width='2.2' stroke-linejoin='round'/%3E%3C/svg%3E") 14 14, grab;
+
+  /* Padrão ondulado estilo Tomodachi Life (amarelo/laranja ensolarado) */
+  --wavy-sunny: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24' viewBox='0 0 48 24'%3E%3Cpath d='M0 12 Q 12 4, 24 12 T 48 12' fill='none' stroke='rgba(255,255,255,0.34)' stroke-width='4.5' stroke-linecap='round'/%3E%3C/svg%3E");
+
+  /* Física de mola (bounce suave estilo Nintendo) */
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Tema Escuro padrão (inspirado em Just Volleyball Dark) */
+  --bg-dark: #141822;
+  --surface-card: rgba(29, 34, 46, 0.94);
+  --surface-solid: #1e2330;
+  --surface-pill: #2a3040;
+  --surface-pill-hover: #343c50;
+  --surface-well: #151924;
+  --border-card: rgba(255, 255, 255, 0.12);
+  --border-dashed: rgba(255, 212, 59, 0.35);
+  --btn-lip: #10131c;
+  --btn-lip-accent: #c98a00;
+  --btn-lip-green: #16803c;
   --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
+  --text-secondary: #b6c2d9;
+  --text-on-sunny: #1d2230;
+  --sunny: #ffd43b;
+  --sunny-deep: #ffb72b;
   --accent: #38bdf8;
-  --accent-strong: #0ea5e9;
-  --success: #22c55e;
-  --danger: #ef4444;
-  --warning: #facc15;
-  --radius-md: 0.875rem;
-  --radius-lg: 1.25rem;
-  --shadow-lg: 0 18px 42px rgba(0, 0, 0, 0.48);
+  --success: #2dd46c;
+  --danger: #ff5c6c;
+  --warning: #ffd43b;
+  --radius-pill: 999px;
+  --radius-card: 1.75rem;
+  --shadow-card: 0 12px 0 rgba(10, 12, 18, 0.45), 0 22px 44px rgba(0, 0, 0, 0.48);
+  --shadow-soft: rgba(0, 0, 0, 0.34);
 }
 
 *,
@@ -39,13 +62,26 @@ body {
   overflow: hidden;
   background-color: var(--bg-dark);
   color: var(--text-primary);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Fredoka', 'Nunito', ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   user-select: none;
   -webkit-user-select: none;
+  cursor: var(--cursor-default);
 }
 
-/* Camada do Canvas 3D ocupa 100% da tela com touch-action: none para baixa latência */
+/* Cursor mãozinha cartoon em todos os elementos interativos */
+button,
+[role='tab'],
+.icon-btn,
+.seg-btn,
+.mode-tab,
+.primary-btn,
+.secondary-btn {
+  cursor: var(--cursor-hand);
+  font-family: inherit;
+}
+
+/* ======================== CANVAS 3D ======================== */
 .canvas-container {
   position: fixed;
   inset: 0;
@@ -60,9 +96,18 @@ body {
   width: 100%;
   height: 100%;
   touch-action: none;
+  cursor: var(--cursor-grab);
 }
 
-/* Camada HUD sobreposta sem bloquear gestos no canvas fora dos controles */
+.canvas-container canvas.cursor-mao {
+  cursor: var(--cursor-hand);
+}
+
+.canvas-container canvas.cursor-padrao {
+  cursor: var(--cursor-default);
+}
+
+/* ======================== CAMADA HUD ======================== */
 .hud {
   position: fixed;
   inset: 0;
@@ -71,15 +116,15 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: clamp(0.5rem, 1.5vmin, 1.15rem);
-  gap: 0.5rem;
+  padding: clamp(0.55rem, 1.6vmin, 1.15rem);
+  gap: 0.55rem;
 }
 
 .hidden {
   display: none !important;
 }
 
-/* ======================== BARRA SUPERIOR ======================== */
+/* ======================== BARRA SUPERIOR (ESTILO JUST VOLLEYBALL) ======================== */
 .topbar {
   pointer-events: auto;
   display: flex;
@@ -87,42 +132,41 @@ body {
   justify-content: space-between;
   gap: 0.65rem;
   flex-wrap: wrap;
-  background: var(--surface-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 0.45rem 0.75rem;
-  box-shadow: var(--shadow-lg);
+  background: var(--surface-card);
+  border: 2px solid var(--border-card);
+  border-radius: var(--radius-pill);
+  padding: 0.45rem 0.85rem;
+  box-shadow: 0 5px 0 var(--btn-lip), 0 12px 28px var(--shadow-soft);
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.6rem;
 }
 
 .brand-dot {
-  width: 0.8rem;
-  height: 0.8rem;
+  width: 1.45rem;
+  height: 1.45rem;
   border-radius: 50%;
-  background: conic-gradient(#22c55e 0 90deg, #ef4444 90deg 180deg, #3b82f6 180deg 270deg, #facc15 270deg 360deg);
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.55);
+  background: conic-gradient(#2dd46c 0 90deg, #ff5c6c 90deg 180deg, #3b9eff 180deg 270deg, #ffd43b 270deg 360deg);
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.28);
   flex-shrink: 0;
 }
 
 .brand-title {
-  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  line-height: 1.1;
+  font-size: clamp(1rem, 2.3vw, 1.25rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
 }
 
 .brand-sub {
   display: block;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 600;
   color: var(--text-secondary);
-  letter-spacing: 0.04em;
 }
 
 .scoreboard {
@@ -136,73 +180,82 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 4.5rem;
-  padding: 0.25rem 0.65rem;
-  border-radius: 0.75rem;
-  background: rgba(2, 6, 23, 0.65);
-  border: 1px solid var(--border-subtle);
+  min-width: 4.8rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-well);
+  border: 2px solid var(--border-card);
+  transition: transform 0.25s var(--spring);
+}
+
+.score-pill.bump {
+  animation: scoreBump 0.32s var(--spring);
 }
 
 .score-pill-record {
-  border-color: rgba(250, 204, 21, 0.4);
+  border-color: rgba(255, 212, 59, 0.55);
 }
 
 .score-label {
-  font-size: 0.68rem;
+  font-size: 0.66rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   color: var(--text-secondary);
 }
 
 .score-value {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 1.15rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--accent);
+  line-height: 1.15;
 }
 
 .score-pill-record .score-value {
-  color: var(--warning);
+  color: var(--sunny);
 }
 
 .topbar-actions {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }
 
-/* Botões com área mínima WCAG >= 48x48 px (RNF-03) */
+/* Botões pílula táteis (>= 48x48px WCAG) com mola e sombra 3D */
 .icon-btn {
   min-width: 48px;
   min-height: 48px;
-  padding: 0 0.75rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
-  background: rgba(30, 41, 59, 0.82);
+  padding: 0 0.9rem;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--border-card);
+  background: var(--surface-pill);
   color: var(--text-primary);
   font-size: 0.95rem;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  cursor: pointer;
-  transition: transform 0.12s ease, background-color 0.15s ease, border-color 0.15s ease;
+  gap: 0.42rem;
+  box-shadow: 0 4px 0 var(--btn-lip), 0 6px 14px var(--shadow-soft);
+  transition: transform 0.22s var(--spring), box-shadow 0.16s ease, background-color 0.16s ease;
 }
 
 .icon-btn:hover {
-  background: rgba(51, 65, 85, 0.95);
-  border-color: var(--accent);
+  background: var(--surface-pill-hover);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 0 var(--btn-lip), 0 10px 20px var(--shadow-soft);
 }
 
 .icon-btn:active {
-  transform: scale(0.96);
+  transform: translateY(3px) scale(0.96);
+  box-shadow: 0 1px 0 var(--btn-lip);
 }
 
 .icon-btn[aria-pressed='true']#btn-daltonismo {
-  background: #ffffff;
-  color: #090d16;
+  background: var(--sunny);
+  color: var(--text-on-sunny);
   border-color: #ffffff;
+  box-shadow: 0 4px 0 var(--btn-lip-accent);
 }
 
 .icon-btn[aria-pressed='false']#btn-som {
@@ -210,7 +263,15 @@ body {
 }
 
 .icon-btn-menu {
-  border-color: rgba(56, 189, 248, 0.55);
+  background: #ff6b7a;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 0 #b83244;
+}
+
+.icon-btn-menu:hover {
+  background: #ff5264;
+  box-shadow: 0 6px 0 #b83244;
 }
 
 /* ======================== STATUS E MULTIPLAYER ======================== */
@@ -218,38 +279,43 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.5rem;
   margin-bottom: auto;
 }
 
 .status-banner {
   pointer-events: auto;
-  font-size: clamp(1rem, 2.5vw, 1.15rem); /* >= 16px conforme RNF-03 */
+  font-size: clamp(1rem, 2.5vw, 1.18rem); /* >= 16px conforme RNF-03 */
   font-weight: 700;
-  padding: 0.5rem 1.2rem;
-  border-radius: 999px;
-  background: var(--surface-glass);
-  backdrop-filter: blur(10px);
-  border: 1.5px solid var(--accent);
+  padding: 0.55rem 1.35rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  border: 2.5px solid var(--accent);
   color: var(--text-primary);
   text-align: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 5px 0 var(--btn-lip), 0 10px 24px var(--shadow-soft);
+  animation: popIn 0.28s var(--spring);
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .status-banner.status-sucesso {
   border-color: var(--success);
-  color: #bbf7d0;
+  color: #86efac;
 }
 
 .status-banner.status-erro {
   border-color: var(--danger);
-  color: #fecaca;
+  color: #fda4af;
 }
 
 .status-banner.status-aguardando {
-  border-color: var(--warning);
-  color: #fef08a;
+  border-color: var(--sunny);
+  background: var(--sunny);
+  background-image: var(--wavy-sunny);
+  background-size: 48px 24px;
+  color: var(--text-on-sunny);
+  box-shadow: 0 5px 0 var(--btn-lip-accent), 0 10px 24px var(--shadow-soft);
+  animation: popIn 0.28s var(--spring), waveSlide 3.2s linear infinite;
 }
 
 .multiplayer-strip {
@@ -257,51 +323,52 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }
 
 .player-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.32rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid var(--border-subtle);
+  padding: 0.36rem 0.9rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.92rem;
+  font-weight: 700;
+  background: var(--surface-card);
+  border: 2px solid var(--border-card);
   color: var(--text-secondary);
+  box-shadow: 0 3px 0 var(--btn-lip);
+  transition: transform 0.24s var(--spring);
 }
 
 .player-chip.ativo {
-  border-color: var(--accent);
-  background: rgba(14, 165, 233, 0.22);
-  color: #ffffff;
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
+  border-color: #ffffff;
+  background: var(--sunny);
+  color: var(--text-on-sunny);
+  transform: scale(1.06);
+  box-shadow: 0 4px 0 var(--btn-lip-accent);
 }
 
 .player-chip.eliminado {
-  opacity: 0.45;
+  opacity: 0.48;
   text-decoration: line-through;
-  border-color: rgba(239, 68, 68, 0.4);
+  border-color: rgba(255, 92, 108, 0.5);
 }
 
-/* ======================== MENU INICIAL ======================== */
+/* ======================== MENU INICIAL (TOMODACHI + JUST VOLLEYBALL) ======================== */
 .menu-panel {
   pointer-events: auto;
   width: 100%;
-  max-width: 34rem;
+  max-width: 35rem;
   margin: 0 auto;
 }
 
 .menu-card {
-  background: var(--surface-glass);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 0.9rem 1rem;
-  box-shadow: var(--shadow-lg);
+  background: var(--surface-card);
+  border: 2.5px solid var(--border-card);
+  border-radius: var(--radius-card);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
@@ -310,98 +377,120 @@ body {
 .menu-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  gap: 0.8rem;
 }
 
 .control-group {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.38rem;
 }
 
 .control-label {
   font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  color: var(--sunny);
+  padding-left: 0.35rem;
 }
 
 .segmented {
   display: flex;
-  gap: 0.25rem;
-  background: rgba(2, 6, 23, 0.65);
-  padding: 0.22rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  gap: 0.3rem;
+  background: var(--surface-well);
+  padding: 0.28rem;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--border-card);
 }
 
 .seg-btn {
   flex: 1;
   min-height: 48px; /* Área mínima WCAG */
-  min-width: 40px;
+  min-width: 42px;
   border: none;
-  border-radius: 0.62rem;
+  border-radius: var(--radius-pill);
   background: transparent;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.94rem;
   font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: transform 0.22s var(--spring), background-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
 }
 
 .seg-btn:hover {
-  color: #ffffff;
+  color: var(--text-primary);
+  transform: scale(1.04);
 }
 
 .seg-btn.active {
-  background: var(--accent-strong);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+  background-color: var(--sunny);
+  background-image: var(--wavy-sunny);
+  background-size: 48px 24px;
+  color: var(--text-on-sunny);
+  box-shadow: 0 3px 0 var(--btn-lip-accent);
+  animation: waveSlide 3.5s linear infinite;
 }
 
+.seg-btn:active {
+  transform: scale(0.95);
+}
+
+/* Botões Principais e Secundários (Pílula 3D saltitante) */
 .primary-btn,
 .secondary-btn {
-  min-height: 50px;
+  min-height: 52px;
   width: 100%;
-  border-radius: var(--radius-md);
-  font-size: 1.05rem;
-  font-weight: 800;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  transition: transform 0.12s ease, filter 0.15s ease, background-color 0.15s ease;
+  border-radius: var(--radius-pill);
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: transform 0.24s var(--spring), box-shadow 0.16s ease, filter 0.16s ease;
 }
 
 .primary-btn {
-  border: none;
-  background: linear-gradient(135deg, #22c55e, #0ea5e9);
-  color: #ffffff;
-  box-shadow: 0 10px 26px rgba(14, 165, 233, 0.38);
+  border: 2.5px solid rgba(255, 255, 255, 0.45);
+  background-color: var(--sunny);
+  background-image: var(--wavy-sunny);
+  background-size: 48px 24px;
+  color: var(--text-on-sunny);
+  box-shadow: 0 5px 0 var(--btn-lip-accent), 0 10px 22px rgba(255, 183, 43, 0.28);
+  animation: waveSlide 3s linear infinite;
 }
 
-.primary-btn:hover {
-  filter: brightness(1.08);
+.primary-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.05);
+  box-shadow: 0 7px 0 var(--btn-lip-accent), 0 14px 26px rgba(255, 183, 43, 0.36);
 }
 
-.primary-btn:active,
-.secondary-btn:active {
-  transform: scale(0.98);
+.primary-btn:active:not(:disabled) {
+  transform: translateY(3px) scale(0.98);
+  box-shadow: 0 1px 0 var(--btn-lip-accent);
 }
 
 .secondary-btn {
-  border: 1px solid var(--border-subtle);
-  background: rgba(30, 41, 59, 0.85);
+  border: 2px solid var(--border-card);
+  background: var(--surface-pill);
   color: var(--text-primary);
+  box-shadow: 0 4px 0 var(--btn-lip);
 }
 
-.secondary-btn:hover {
-  background: rgba(51, 65, 85, 0.95);
+.secondary-btn:hover:not(:disabled) {
+  background: var(--surface-pill-hover);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 0 var(--btn-lip);
+}
+
+.secondary-btn:active:not(:disabled) {
+  transform: translateY(3px) scale(0.97);
+  box-shadow: 0 1px 0 var(--btn-lip);
 }
 
 .primary-btn:disabled,
 .secondary-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+  animation: none;
   filter: grayscale(0.25);
 }
 
@@ -421,39 +510,40 @@ body {
 .mode-tabs {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.3rem;
-  background: rgba(2, 6, 23, 0.72);
-  padding: 0.24rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  gap: 0.35rem;
+  background: var(--surface-well);
+  padding: 0.28rem;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--border-card);
 }
 
 .mode-tab {
   min-height: 48px;
-  border: none;
-  border-radius: 0.65rem;
+  border: 2px solid transparent;
+  border-radius: var(--radius-pill);
   background: transparent;
   color: var(--text-secondary);
-  font-size: 0.92rem;
+  font-size: 0.94rem;
   font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: transform 0.22s var(--spring), background-color 0.16s ease, color 0.16s ease;
 }
 
 .mode-tab:hover {
-  color: #ffffff;
+  color: var(--text-primary);
+  transform: scale(1.02);
 }
 
 .mode-tab.active {
-  background: rgba(56, 189, 248, 0.22);
+  background: #3b9eff;
   color: #ffffff;
-  border: 1px solid rgba(56, 189, 248, 0.65);
+  border-color: rgba(255, 255, 255, 0.32);
+  box-shadow: 0 3px 0 #1e6bc4;
 }
 
 .tab-panel {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.78rem;
 }
 
 .online-section {
@@ -465,28 +555,31 @@ body {
 .online-row {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 0.5rem;
+  gap: 0.55rem;
   align-items: stretch;
 }
 
 .text-input {
-  min-height: 48px;
+  min-height: 50px;
   width: 100%;
-  padding: 0 0.85rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
-  background: rgba(2, 6, 23, 0.75);
+  padding: 0 1rem;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--border-card);
+  background: var(--surface-well);
   color: var(--text-primary);
+  font-family: inherit;
   font-size: 1rem;
   font-weight: 600;
   outline: none;
   user-select: text;
   -webkit-user-select: text;
+  cursor: text;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
 .text-input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3);
+  border-color: var(--sunny);
+  box-shadow: 0 0 0 3px rgba(255, 212, 59, 0.28);
 }
 
 .input-code {
@@ -498,27 +591,27 @@ body {
 
 .btn-compact {
   width: auto;
-  min-width: 7.5rem;
-  padding: 0 1rem;
-  font-size: 0.95rem;
+  min-width: 7.8rem;
+  padding: 0 1.1rem;
+  font-size: 0.96rem;
 }
 
 .online-divider {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.65rem;
   color: var(--text-secondary);
   font-size: 0.78rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
 }
 
 .online-divider::before,
 .online-divider::after {
   content: '';
   flex: 1;
-  height: 1px;
-  background: var(--border-subtle);
+  border-top: 2px dashed var(--border-dashed);
 }
 
 .lobby-header {
@@ -527,10 +620,10 @@ body {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.5rem;
-  padding: 0.5rem 0.7rem;
-  border-radius: var(--radius-md);
-  background: rgba(2, 6, 23, 0.7);
-  border: 1px solid rgba(56, 189, 248, 0.4);
+  padding: 0.55rem 0.85rem;
+  border-radius: 1.25rem;
+  background: var(--surface-well);
+  border: 2px dashed var(--border-dashed);
 }
 
 .room-code-box {
@@ -541,6 +634,7 @@ body {
 
 .room-code-label {
   font-size: 0.75rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-secondary);
@@ -548,75 +642,79 @@ body {
 
 .room-code-value {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 1.3rem;
+  font-size: 1.35rem;
+  font-weight: 800;
   letter-spacing: 0.16em;
-  color: var(--accent);
+  color: var(--sunny);
 }
 
 .lobby-header-actions {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }
 
 .btn-mini {
   width: auto;
   min-height: 48px;
-  padding: 0 0.8rem;
-  font-size: 0.85rem;
+  padding: 0 0.9rem;
+  font-size: 0.88rem;
 }
 
 .btn-danger-outline {
-  border-color: rgba(239, 68, 68, 0.55);
-  color: #fecaca;
+  border-color: rgba(255, 92, 108, 0.65);
+  color: #fda4af;
 }
 
 .lobby-players {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }
 
 .lobby-player-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.35rem 0.7rem;
-  border-radius: 999px;
-  font-size: 0.88rem;
-  font-weight: 600;
-  background: rgba(30, 41, 59, 0.85);
-  border: 1px solid var(--border-subtle);
+  padding: 0.38rem 0.85rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  font-weight: 700;
+  background: var(--surface-pill);
+  border: 2px solid var(--border-card);
   color: var(--text-primary);
+  box-shadow: 0 3px 0 var(--btn-lip);
 }
 
 .lobby-player-badge.voce {
-  border-color: var(--accent);
-  background: rgba(14, 165, 233, 0.22);
+  border-color: var(--sunny);
+  background: var(--sunny);
+  color: var(--text-on-sunny);
+  box-shadow: 0 3px 0 var(--btn-lip-accent);
 }
 
 .lobby-hint {
   text-align: center;
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: var(--warning);
-  padding: 0.45rem;
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--sunny);
+  padding: 0.4rem;
 }
 
 .online-feedback {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.92rem;
+  font-weight: 700;
   text-align: center;
-  padding: 0.45rem 0.75rem;
-  border-radius: 0.65rem;
-  background: rgba(14, 165, 233, 0.14);
-  border: 1px solid rgba(56, 189, 248, 0.4);
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius-pill);
+  background: rgba(56, 189, 248, 0.16);
+  border: 2px solid rgba(56, 189, 248, 0.45);
   color: var(--text-primary);
 }
 
 .online-feedback.erro {
-  background: rgba(239, 68, 68, 0.16);
-  border-color: rgba(239, 68, 68, 0.65);
-  color: #fecaca;
+  background: rgba(255, 92, 108, 0.18);
+  border-color: rgba(255, 92, 108, 0.68);
+  color: #fda4af;
 }
 
 /* ======================== RODAPÉ DE ATALHOS ======================== */
@@ -625,42 +723,43 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.45rem;
+  gap: 0.5rem;
 }
 
 .shortcut-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.28rem 0.65rem;
-  border-radius: 999px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  background: rgba(15, 23, 42, 0.72);
-  border: 1px solid var(--border-subtle);
+  gap: 0.38rem;
+  padding: 0.32rem 0.78rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.84rem;
+  font-weight: 700;
+  background: var(--surface-card);
+  border: 2px solid var(--border-card);
   color: var(--text-secondary);
+  box-shadow: 0 3px 0 var(--btn-lip);
 }
 
 .shortcut-pill kbd {
   font-family: ui-monospace, SFMono-Regular, monospace;
   font-size: 0.78rem;
-  padding: 0.1rem 0.35rem;
-  border-radius: 0.3rem;
-  background: rgba(255, 255, 255, 0.14);
-  color: #ffffff;
+  padding: 0.1rem 0.38rem;
+  border-radius: 0.45rem;
+  background: var(--surface-well);
+  color: var(--text-primary);
 }
 
 .dot {
-  width: 0.6rem;
-  height: 0.6rem;
+  width: 0.65rem;
+  height: 0.65rem;
   border-radius: 50%;
   display: inline-block;
 }
 
-.dot.verde { background: #22c55e; }
-.dot.vermelho { background: #ef4444; }
-.dot.amarelo { background: #facc15; }
-.dot.azul { background: #3b82f6; }
+.dot.verde { background: #2dd46c; }
+.dot.vermelho { background: #ff5c6c; }
+.dot.amarelo { background: #ffd43b; }
+.dot.azul { background: #3b9eff; }
 
 /* ======================== MODAL GAME OVER / RANKING ======================== */
 .modal-backdrop {
@@ -672,7 +771,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: rgba(2, 6, 23, 0.72);
+  background: rgba(12, 16, 28, 0.68);
   backdrop-filter: blur(8px);
 }
 
@@ -680,42 +779,44 @@ body {
   width: 100%;
   max-width: 26rem;
   background: var(--surface-solid);
-  border: 1.5px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
+  border: 3px solid var(--border-card);
+  border-radius: 2rem;
+  padding: 1.6rem;
   text-align: center;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+  animation: popIn 0.32s var(--spring);
 }
 
 .modal-badge {
   align-self: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  background: rgba(250, 204, 21, 0.2);
-  border: 1px solid var(--warning);
-  color: var(--warning);
-  font-size: 0.8rem;
+  padding: 0.3rem 0.95rem;
+  border-radius: var(--radius-pill);
+  background: var(--sunny);
+  color: var(--text-on-sunny);
+  font-size: 0.82rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
+  box-shadow: 0 3px 0 var(--btn-lip-accent);
 }
 
 .modal-title {
-  font-size: 1.7rem;
-  font-weight: 900;
+  font-size: 1.85rem;
+  font-weight: 700;
 }
 
 .modal-subtitle {
-  font-size: 1rem;
+  font-size: 1.02rem;
+  font-weight: 600;
   color: var(--text-secondary);
 }
 
 .modal-ranking {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.45rem;
   margin: 0.25rem 0;
 }
 
@@ -723,144 +824,161 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.55rem 0.85rem;
-  border-radius: 0.65rem;
-  background: rgba(30, 41, 59, 0.65);
-  border: 1px solid var(--border-subtle);
+  padding: 0.62rem 1rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-pill);
+  border: 2px solid var(--border-card);
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .ranking-row.vencedor {
-  border-color: var(--warning);
-  background: rgba(250, 204, 21, 0.14);
-  color: #fef9c3;
+  border-color: #ffffff;
+  background: var(--sunny);
+  color: var(--text-on-sunny);
+  box-shadow: 0 3px 0 var(--btn-lip-accent);
 }
 
 .modal-actions {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.65rem;
   margin-top: 0.25rem;
 }
 
 /* ======================== FOCO ACESSÍVEL (TECLADO) ======================== */
 button:focus-visible {
-  outline: 3px solid #facc15;
+  outline: 3.5px solid #ffd43b;
   outline-offset: 2px;
 }
 
-/* ======================== TEMA CLARO (MODO CLARO/ESCURO) ======================== */
+/* ======================== TEMA CLARO (TOMODACHI LIFE CREAM + JUST VOLLEYBALL LIGHT) ======================== */
 body.tema-claro {
-  --bg-dark: #e2e8f0;
-  --surface-glass: rgba(255, 255, 255, 0.86);
-  --surface-solid: #ffffff;
-  --border-subtle: rgba(15, 23, 42, 0.14);
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --bg-dark: #fff6dc;
+  --surface-card: #fff8e2;
+  --surface-solid: #fff9e8;
+  --surface-pill: #ffffff;
+  --surface-pill-hover: #fffdf5;
+  --surface-well: #f5e7be;
+  --border-card: #f0d797;
+  --border-dashed: #e8be63;
+  --btn-lip: #dec383;
+  --btn-lip-accent: #d98200;
+  --text-primary: #22293d;
+  --text-secondary: #6c5f44;
+  --text-on-sunny: #22293d;
+  --sunny: #ffbe3b;
   --accent: #0284c7;
-  --accent-strong: #0284c7;
-  --shadow-lg: 0 14px 36px rgba(15, 23, 42, 0.14);
+  --shadow-card: 0 10px 0 #e5cd92, 0 20px 42px rgba(140, 108, 42, 0.22);
+  --shadow-soft: rgba(140, 108, 42, 0.18);
 }
 
-body.tema-claro .score-pill,
-body.tema-claro .segmented,
-body.tema-claro .mode-tabs,
-body.tema-claro .text-input,
-body.tema-claro .lobby-header {
-  background: rgba(226, 232, 240, 0.78);
+/* Textura pontilhada suave estilo papel/caderno do Tomodachi Life no Tema Claro */
+body.tema-claro .menu-card,
+body.tema-claro .modal-card {
+  background-image: radial-gradient(rgba(232, 190, 99, 0.28) 2px, transparent 2px);
+  background-size: 20px 20px;
 }
 
-body.tema-claro .score-pill-record .score-value {
-  color: #b45309;
+body.tema-claro .control-label {
+  color: #d97706;
 }
 
-body.tema-claro .icon-btn,
-body.tema-claro .secondary-btn,
-body.tema-claro .player-chip,
-body.tema-claro .lobby-player-badge,
-body.tema-claro .shortcut-pill,
-body.tema-claro .ranking-row {
-  background: rgba(241, 245, 249, 0.92);
-  color: var(--text-primary);
-}
-
-body.tema-claro .icon-btn:hover,
-body.tema-claro .secondary-btn:hover {
-  background: #e2e8f0;
-}
-
-body.tema-claro .mode-tab:hover,
-body.tema-claro .seg-btn:hover {
-  color: #0f172a;
-}
-
-body.tema-claro .mode-tab.active {
-  background: rgba(2, 132, 199, 0.16);
-  color: #0369a1;
-  border-color: rgba(2, 132, 199, 0.55);
-}
-
-body.tema-claro .seg-btn.active {
-  background: #0284c7;
-  color: #ffffff;
-}
-
-body.tema-claro .status-banner {
-  background: rgba(255, 255, 255, 0.92);
-  color: #0f172a;
+body.tema-claro .score-pill-record .score-value,
+body.tema-claro .room-code-value,
+body.tema-claro .lobby-hint {
+  color: #d97706;
 }
 
 body.tema-claro .status-banner.status-sucesso {
   color: #15803d;
 }
 
-body.tema-claro .status-banner.status-erro {
-  color: #b91c1c;
-}
-
-body.tema-claro .status-banner.status-aguardando {
-  color: #a16207;
-}
-
-body.tema-claro .shortcut-pill kbd {
-  background: rgba(15, 23, 42, 0.1);
-  color: #0f172a;
-}
-
+body.tema-claro .status-banner.status-erro,
+body.tema-claro .online-feedback.erro,
 body.tema-claro .btn-danger-outline {
-  color: #b91c1c;
-  border-color: rgba(220, 38, 38, 0.45);
-}
-
-body.tema-claro .online-feedback.erro {
-  color: #b91c1c;
+  color: #c81e32;
 }
 
 body.tema-claro .icon-btn[aria-pressed='true']#btn-daltonismo {
-  background: #0f172a;
+  background: #22293d;
   color: #ffffff;
-  border-color: #0f172a;
+  border-color: #22293d;
+  box-shadow: 0 4px 0 #0e121e;
 }
 
-/* ======================== MODO ALTO CONTRASTE (RNF-03) ======================== */
+/* ======================== MODO ALTO CONTRASTE (RNF-03 - WCAG AAA) ======================== */
 body.alto-contraste {
-  --surface-glass: rgba(0, 0, 0, 0.94);
+  --surface-card: #000000;
   --surface-solid: #000000;
-  --border-subtle: #ffffff;
+  --surface-pill: #111111;
+  --surface-pill-hover: #222222;
+  --surface-well: #000000;
+  --border-card: #ffffff;
+  --border-dashed: #ffffff;
+  --btn-lip: #ffffff;
   --text-primary: #ffffff;
   --text-secondary: #f1f5f9;
+}
+
+body.alto-contraste .menu-card,
+body.alto-contraste .modal-card {
+  background-image: none;
 }
 
 body.alto-contraste .primary-btn {
   background: #ffffff;
   color: #000000;
-  border: 2px solid #facc15;
+  border: 3px solid #ffd43b;
+  animation: none;
 }
 
 body.alto-contraste .seg-btn.active {
-  background: #facc15;
+  background: #ffd43b;
   color: #000000;
+  animation: none;
+}
+
+/* ======================== ANIMAÇÕES LÚDICAS ======================== */
+@keyframes waveSlide {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 48px 0;
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.88) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes scoreBump {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.16);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primary-btn,
+  .seg-btn.active,
+  .status-banner,
+  .modal-card {
+    animation: none !important;
+  }
 }
 
 /* ======================== RESPONSIVIDADE (360px a 1920px+) ======================== */
@@ -871,23 +989,24 @@ body.alto-contraste .seg-btn.active {
   }
 
   .topbar {
-    padding: 0.4rem 0.55rem;
+    border-radius: 1.5rem;
+    padding: 0.42rem 0.6rem;
     gap: 0.4rem;
   }
 
   .score-pill {
-    min-width: 3.7rem;
-    padding: 0.2rem 0.45rem;
+    min-width: 3.9rem;
+    padding: 0.2rem 0.5rem;
   }
 
   .menu-grid {
     grid-template-columns: 1fr;
-    gap: 0.55rem;
+    gap: 0.6rem;
   }
 
   .menu-card {
-    padding: 0.75rem;
-    gap: 0.65rem;
+    padding: 0.85rem;
+    gap: 0.7rem;
   }
 
   .hud-footer {
@@ -895,7 +1014,7 @@ body.alto-contraste .seg-btn.active {
   }
 }
 
-/* Celular em modo paisagem (ex.: 800x360) — evita sobreposição vertical */
+/* Celular em modo paisagem (ex.: 800x360) */
 @media (max-height: 480px) and (orientation: landscape) {
   .hud {
     padding: 0.35rem 0.6rem;
@@ -903,7 +1022,7 @@ body.alto-contraste .seg-btn.active {
   }
 
   .topbar {
-    padding: 0.25rem 0.55rem;
+    padding: 0.25rem 0.6rem;
   }
 
   .menu-panel {
@@ -911,8 +1030,8 @@ body.alto-contraste .seg-btn.active {
   }
 
   .menu-card {
-    padding: 0.55rem 0.75rem;
-    gap: 0.45rem;
+    padding: 0.6rem 0.8rem;
+    gap: 0.48rem;
   }
 
   .menu-grid {

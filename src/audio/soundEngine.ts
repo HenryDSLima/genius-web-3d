@@ -159,4 +159,115 @@ export class SoundEngine {
     osc.start(agora);
     osc.stop(agora + 0.5);
   }
+
+  // ==========================================================================
+  // EFEITOS SONOROS LÚDICOS DA INTERFACE (ESTILO TOMODACHI LIFE / NINTENDO)
+  // ==========================================================================
+
+  /**
+   * Som bem suave de "bolha/madeira" ao passar o mouse sobre um botão.
+   */
+  public tocarHoverUI(): void {
+    if (!this.somAtivo || !this.contexto || this.contexto.state !== 'running') return;
+
+    const agora = this.contexto.currentTime;
+    const osc = this.contexto.createOscillator();
+    const ganho = this.contexto.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(760, agora);
+    osc.frequency.exponentialRampToValueAtTime(1020, agora + 0.032);
+
+    ganho.gain.setValueAtTime(0.0001, agora);
+    ganho.gain.linearRampToValueAtTime(0.045, agora + 0.006);
+    ganho.gain.exponentialRampToValueAtTime(0.0001, agora + 0.036);
+
+    osc.connect(ganho);
+    ganho.connect(this.contexto.destination);
+    osc.start(agora);
+    osc.stop(agora + 0.04);
+  }
+
+  /**
+   * Som saltitante ("pop-bloop") ao clicar em botões, abas ou seletores.
+   */
+  public tocarCliqueUI(): void {
+    if (!this.somAtivo) return;
+    this.desbloquear();
+    if (!this.contexto) return;
+
+    const agora = this.contexto.currentTime;
+    const osc = this.contexto.createOscillator();
+    const ganho = this.contexto.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(480, agora);
+    osc.frequency.exponentialRampToValueAtTime(820, agora + 0.065);
+
+    ganho.gain.setValueAtTime(0.0001, agora);
+    ganho.gain.linearRampToValueAtTime(0.14, agora + 0.008);
+    ganho.gain.exponentialRampToValueAtTime(0.0001, agora + 0.075);
+
+    osc.connect(ganho);
+    ganho.connect(this.contexto.destination);
+    osc.start(agora);
+    osc.stop(agora + 0.085);
+  }
+
+  /**
+   * Efeito alegre de confirmação ("ba-ding!") ao iniciar partida ou criar sala.
+   */
+  public tocarConfirmarUI(): void {
+    if (!this.somAtivo) return;
+    this.desbloquear();
+    if (!this.contexto) return;
+
+    const agora = this.contexto.currentTime;
+    const notas = [587.33, 880.0]; // Ré5 -> Lá5
+
+    notas.forEach((freq, idx) => {
+      if (!this.contexto) return;
+      const inicio = agora + idx * 0.055;
+      const osc = this.contexto.createOscillator();
+      const ganho = this.contexto.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, inicio);
+
+      ganho.gain.setValueAtTime(0.0001, inicio);
+      ganho.gain.linearRampToValueAtTime(0.16, inicio + 0.01);
+      ganho.gain.exponentialRampToValueAtTime(0.0001, inicio + 0.14);
+
+      osc.connect(ganho);
+      ganho.connect(this.contexto.destination);
+      osc.start(inicio);
+      osc.stop(inicio + 0.16);
+    });
+  }
+
+  /**
+   * Som suave descendente ("bloop") ao voltar ao menu ou sair de uma sala.
+   */
+  public tocarVoltarUI(): void {
+    if (!this.somAtivo) return;
+    this.desbloquear();
+    if (!this.contexto) return;
+
+    const agora = this.contexto.currentTime;
+    const osc = this.contexto.createOscillator();
+    const ganho = this.contexto.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, agora);
+    osc.frequency.exponentialRampToValueAtTime(360, agora + 0.08);
+
+    ganho.gain.setValueAtTime(0.0001, agora);
+    ganho.gain.linearRampToValueAtTime(0.12, agora + 0.01);
+    ganho.gain.exponentialRampToValueAtTime(0.0001, agora + 0.09);
+
+    osc.connect(ganho);
+    ganho.connect(this.contexto.destination);
+    osc.start(agora);
+    osc.stop(agora + 0.1);
+  }
 }

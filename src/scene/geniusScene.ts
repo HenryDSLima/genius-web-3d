@@ -127,21 +127,21 @@ export class GeniusScene {
 
   /**
    * Alterna a iluminação ambiente, o fundo da cena e a mesa de apoio
-   * entre o Tema Escuro e o Tema Claro.
+   * entre o Tema Escuro (Just Volleyball Dark) e o Tema Claro (Tomodachi Cream).
    */
   public definirTemaVisual(tema: TemaVisual): void {
     if (tema === 'claro') {
-      this.scene.background = new THREE.Color(0xe2e8f0);
-      this.matSuperficieApoio.color.setHex(0xcbd5e1);
+      this.scene.background = new THREE.Color(0xfff6dc);
+      this.matSuperficieApoio.color.setHex(0xf3e2b6);
       this.luzAmbiente.color.setHex(0xffffff);
-      this.luzAmbiente.groundColor.setHex(0x94a3b8);
-      this.luzAmbiente.intensity = 1.05;
+      this.luzAmbiente.groundColor.setHex(0xd6be88);
+      this.luzAmbiente.intensity = 1.1;
     } else {
-      this.scene.background = new THREE.Color(0x0b101b);
-      this.matSuperficieApoio.color.setHex(0x0c1322);
+      this.scene.background = new THREE.Color(0x141822);
+      this.matSuperficieApoio.color.setHex(0x1b2130);
       this.luzAmbiente.color.setHex(0xdbeafe);
       this.luzAmbiente.groundColor.setHex(0x0f172a);
-      this.luzAmbiente.intensity = 0.75;
+      this.luzAmbiente.intensity = 0.8;
     }
   }
 
@@ -192,14 +192,17 @@ export class GeniusScene {
   };
 
   private readonly tratarPointerMove = (evento: PointerEvent): void => {
+    const canvas = this.renderer.domElement;
     if (!this.interacaoHabilitada || evento.pointerType === 'touch') {
-      this.renderer.domElement.style.cursor = this.cameraController.obterModo() === 'SHOWCASE' ? 'grab' : 'default';
+      canvas.classList.remove('cursor-mao');
+      canvas.classList.toggle('cursor-padrao', this.cameraController.obterModo() !== 'SHOWCASE');
       return;
     }
 
     const cor = this.detectarQuadranteSobPonteiro(evento.clientX, evento.clientY);
     this.modelo.definirHover(cor);
-    this.renderer.domElement.style.cursor = cor ? 'pointer' : 'default';
+    canvas.classList.toggle('cursor-mao', Boolean(cor));
+    canvas.classList.toggle('cursor-padrao', !cor);
   };
 
   private readonly tratarPointerLeave = (): void => {
@@ -228,7 +231,9 @@ export class GeniusScene {
     this.interacaoHabilitada = habilitada;
     if (!habilitada) {
       this.modelo.definirHover(null);
-      this.renderer.domElement.style.cursor = this.cameraController.obterModo() === 'SHOWCASE' ? 'grab' : 'default';
+      const canvas = this.renderer.domElement;
+      canvas.classList.remove('cursor-mao');
+      canvas.classList.toggle('cursor-padrao', this.cameraController.obterModo() !== 'SHOWCASE');
     }
   }
 

@@ -141,6 +141,10 @@ class GeniusApp {
       onCopiarLinkConvite: () => {
         void this.copiarLinkConvite();
       },
+      onSomHoverUI: () => this.sound.tocarHoverUI(),
+      onSomCliqueUI: () => this.sound.tocarCliqueUI(),
+      onSomConfirmarUI: () => this.sound.tocarConfirmarUI(),
+      onSomVoltarUI: () => this.sound.tocarVoltarUI(),
     });
 
     this.hud.sincronizarEstado(this.engine.obterEstado());

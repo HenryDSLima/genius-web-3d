@@ -32,6 +32,12 @@ export interface CallbacksHud {
   onIniciarPartidaOnline: () => void;
   onAlterarDificuldadeOnline: (dificuldade: Dificuldade) => void;
   onCopiarLinkConvite: () => void;
+
+  // Callbacks de feedback sonoro lúdico da interface (Tomodachi / Nintendo feel)
+  onSomHoverUI: () => void;
+  onSomCliqueUI: () => void;
+  onSomConfirmarUI: () => void;
+  onSomVoltarUI: () => void;
 }
 
 /**
@@ -192,39 +198,64 @@ export class HudController {
    * Registra todos os ouvintes de clique dos controles e atalhos globais de teclado.
    */
   private registrarEventos(): void {
-    this.tabLocal.addEventListener('click', () => this.selecionarAba('local'));
-    this.tabOnline.addEventListener('click', () => this.selecionarAba('online'));
+    // Som sutil de hover estilo Tomodachi Life em todos os botões habilitados do HUD
+    const hudRaiz = document.getElementById('hud');
+    if (hudRaiz) {
+      hudRaiz.addEventListener('pointerenter', (evento) => {
+        const alvo = evento.target;
+        if (alvo instanceof HTMLButtonElement && !alvo.disabled) {
+          this.callbacks.onSomHoverUI();
+        }
+      }, true);
+    }
+
+    this.tabLocal.addEventListener('click', () => {
+      this.callbacks.onSomCliqueUI();
+      this.selecionarAba('local');
+    });
+    this.tabOnline.addEventListener('click', () => {
+      this.callbacks.onSomCliqueUI();
+      this.selecionarAba('online');
+    });
 
     this.btnIniciar.addEventListener('click', () => {
+      this.callbacks.onSomConfirmarUI();
       this.callbacks.onIniciarPartida(this.quantidadeSelecionada, this.dificuldadeSelecionada);
     });
 
     this.btnReiniciar.addEventListener('click', () => {
+      this.callbacks.onSomConfirmarUI();
       this.callbacks.onReiniciarPartida();
     });
 
     this.btnMenu.addEventListener('click', () => {
+      this.callbacks.onSomVoltarUI();
       this.callbacks.onVoltarMenu();
     });
 
     this.btnModalMenu.addEventListener('click', () => {
+      this.callbacks.onSomVoltarUI();
       this.callbacks.onVoltarMenu();
     });
 
     this.btnSom.addEventListener('click', () => {
       this.callbacks.onAlternarSom();
+      this.callbacks.onSomCliqueUI();
     });
 
     this.btnTema.addEventListener('click', () => {
+      this.callbacks.onSomCliqueUI();
       this.callbacks.onAlternarTema();
     });
 
     this.btnDaltonismo.addEventListener('click', () => {
+      this.callbacks.onSomCliqueUI();
       this.callbacks.onAlternarDaltonismo();
     });
 
     for (const btn of this.botoesJogadores) {
       btn.addEventListener('click', () => {
+        this.callbacks.onSomCliqueUI();
         const qtd = Number(btn.dataset.jogadores || '1');
         this.quantidadeSelecionada = qtd;
         this.marcarBotaoJogadores(qtd);
@@ -234,6 +265,7 @@ export class HudController {
 
     for (const btn of this.botoesDificuldade) {
       btn.addEventListener('click', () => {
+        this.callbacks.onSomCliqueUI();
         const dif = (btn.dataset.dificuldade as Dificuldade) || 'medio';
         this.dificuldadeSelecionada = dif;
         this.marcarBotaoDificuldade(dif);
@@ -247,27 +279,33 @@ export class HudController {
     });
 
     this.btnCriarSala.addEventListener('click', () => {
+      this.callbacks.onSomConfirmarUI();
       this.callbacks.onCriarSalaOnline(this.inputApelido.value, this.dificuldadeSelecionada);
     });
 
     this.btnEntrarSala.addEventListener('click', () => {
+      this.callbacks.onSomConfirmarUI();
       this.callbacks.onEntrarSalaOnline(this.inputCodigoSala.value, this.inputApelido.value);
     });
 
     this.btnSairSala.addEventListener('click', () => {
+      this.callbacks.onSomVoltarUI();
       this.callbacks.onSairSalaOnline();
     });
 
     this.btnCopiarConvite.addEventListener('click', () => {
+      this.callbacks.onSomCliqueUI();
       this.callbacks.onCopiarLinkConvite();
     });
 
     this.btnIniciarOnline.addEventListener('click', () => {
+      this.callbacks.onSomConfirmarUI();
       this.callbacks.onIniciarPartidaOnline();
     });
 
     for (const btn of this.botoesDificuldadeOnline) {
       btn.addEventListener('click', () => {
+        this.callbacks.onSomCliqueUI();
         const dif = (btn.dataset.dificuldadeOnline as Dificuldade) || 'medio';
         this.marcarBotaoDificuldadeOnline(dif);
         this.callbacks.onAlterarDificuldadeOnline(dif);
