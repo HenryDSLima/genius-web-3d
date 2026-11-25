@@ -16,6 +16,7 @@ import {
   PreferenciasSalvas,
   TemaVisual,
 } from '../core/storage';
+import { FiltroRanking, ResultadoRanking } from '../network/leaderboardService';
 import { PapelOnline } from '../network/onlineManager';
 import { EstadoLobbyOnline, normalizarCodigoSala } from '../network/onlineProtocol';
 import { AreaSeguraHud } from '../scene/cameraController';
@@ -52,6 +53,10 @@ export interface CallbacksHud {
 
   // Callback disparado sempre que a área livre entre elementos do HUD muda
   onAreaSeguraAlterada: (area: AreaSeguraHud) => void;
+
+  // Callbacks do Ranking Global (Supabase)
+  onAbrirRanking: (filtro: FiltroRanking) => void;
+  onEnviarPontuacaoRanking: (apelido: string) => void;
 }
 
 /**
@@ -108,6 +113,21 @@ export class HudController {
   private readonly elCenarioGrid: HTMLElement;
   private readonly btnFecharCustom: HTMLButtonElement;
   private readonly botoesCarcaca: HTMLButtonElement[];
+
+  // Referências do Ranking Global e envio no Game Over
+  private readonly btnRanking: HTMLButtonElement;
+  private readonly elRankingModal: HTMLElement;
+  private readonly elRankingOrigemBadge: HTMLElement;
+  private readonly elRankingAviso: HTMLElement;
+  private readonly elRankingLista: HTMLElement;
+  private readonly btnAtualizarRanking: HTMLButtonElement;
+  private readonly btnFecharRanking: HTMLButtonElement;
+  private readonly botoesFiltroRanking: HTMLButtonElement[];
+  private readonly elGameOverSubmitBox: HTMLElement;
+  private readonly inputApelidoRanking: HTMLInputElement;
+  private readonly btnEnviarRanking: HTMLButtonElement;
+  private readonly elGameOverSubmitFeedback: HTMLElement;
+  private filtroRankingAtual: FiltroRanking = 'todas';
 
   // Referências das abas e painel Online
   private readonly tabLocal: HTMLButtonElement;
@@ -176,6 +196,21 @@ export class HudController {
     this.btnFecharCustom = this.obterElemento('btn-fechar-custom') as HTMLButtonElement;
     this.botoesCarcaca = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-carcaca]'));
 
+    this.btnRanking = this.obterElemento('btn-ranking') as HTMLButtonElement;
+    this.elRankingModal = this.obterElemento('ranking-modal');
+    this.elRankingOrigemBadge = this.obterElemento('ranking-origem-badge');
+    this.elRankingAviso = this.obterElemento('ranking-aviso');
+    this.elRankingLista = this.obterElemento('ranking-global-lista');
+    this.btnAtualizarRanking = this.obterElemento('btn-atualizar-ranking') as HTMLButtonElement;
+    this.btnFecharRanking = this.obterElemento('btn-fechar-ranking') as HTMLButtonElement;
+    this.botoesFiltroRanking = Array.from(
+      document.querySelectorAll<HTMLButtonElement>('[data-filtro-ranking]')
+    );
+    this.elGameOverSubmitBox = this.obterElemento('gameover-submit-box');
+    this.inputApelidoRanking = this.obterElemento('input-apelido-ranking') as HTMLInputElement;
+    this.btnEnviarRanking = this.obterElemento('btn-enviar-ranking') as HTMLButtonElement;
+    this.elGameOverSubmitFeedback = this.obterElemento('gameover-submit-feedback');
+
     this.tabLocal = this.obterElemento('tab-local') as HTMLButtonElement;
     this.tabOnline = this.obterElemento('tab-online') as HTMLButtonElement;
     this.panelLocal = this.obterElemento('panel-local');
@@ -239,6 +274,10 @@ export class HudController {
     this.atualizarBotaoTema(prefs.tema);
     this.atualizarBotaoDaltonismo(prefs.modoDaltonismo);
     this.atualizarCustomizacao(prefs.corCarcaca, prefs.cenario, prefs.pontosTotais);
+    if (prefs.apelidoSalvo) {
+      this.inputApelidoRanking.value = prefs.apelidoSalvo;
+      this.inputApelido.value = prefs.apelidoSalvo;
+    }
     this.marcarBotaoJogadores(prefs.quantidadeJogadores);
     this.marcarBotaoDificuldade(prefs.dificuldade);
     this.marcarBotaoDificuldadeOnline(prefs.dificuldade);
@@ -325,6 +364,49 @@ export class HudController {
         this.callbacks.onAlterarCorCarcaca(cor);
       });
     }
+
+    // Eventos do Modal de Ranking Global
+    this.btnRanking.addEventListener('click', () => {
+      this.callbacks.onSomCliqueUI();
+      this.abrirModalRanking();
+    });
+
+    this.btnFecharRanking.addEventListener('click', () => {
+      this.callbacks.onSomVoltarUI();
+      this.elRankingModal.classList.add('hidden');
+    });
+
+    this.elRankingModal.addEventListener('click', (evento) => {
+      if (evento.target === this.elRankingModal) {
+        this.callbacks.onSomVoltarUI();
+        this.elRankingModal.classList.add('hidden');
+      }
+    });
+
+    this.btnAtualizarRanking.addEventListener('click', () => {
+      this.callbacks.onSomCliqueUI();
+      this.mostrarCarregandoRanking();
+      this.callbacks.onAbrirRanking(this.filtroRankingAtual);
+    });
+
+    for (const btn of this.botoesFiltroRanking) {
+      btn.addEventListener('click', () => {
+        this.callbacks.onSomCliqueUI();
+        const filtro = (btn.dataset.filtroRanking as FiltroRanking) || 'todas';
+        this.filtroRankingAtual = filtro;
+        for (const b of this.botoesFiltroRanking) {
+          b.classList.toggle('active', b.dataset.filtroRanking === filtro);
+        }
+        this.mostrarCarregandoRanking();
+        this.callbacks.onAbrirRanking(filtro);
+      });
+    }
+
+    this.btnEnviarRanking.addEventListener('click', () => {
+      this.callbacks.onSomConfirmarUI();
+      this.btnEnviarRanking.disabled = true;
+      this.callbacks.onEnviarPontuacaoRanking(this.inputApelidoRanking.value);
+    });
 
     this.btnDaltonismo.addEventListener('click', () => {
       this.callbacks.onSomCliqueUI();
@@ -529,7 +611,22 @@ export class HudController {
       return;
     }
 
+    if (tecla === 'r') {
+      evento.preventDefault();
+      if (this.elRankingModal.classList.contains('hidden')) {
+        this.abrirModalRanking();
+      } else {
+        this.elRankingModal.classList.add('hidden');
+      }
+      return;
+    }
+
     if (tecla === 'escape') {
+      if (!this.elRankingModal.classList.contains('hidden')) {
+        evento.preventDefault();
+        this.elRankingModal.classList.add('hidden');
+        return;
+      }
       if (!this.elCustomModal.classList.contains('hidden')) {
         evento.preventDefault();
         this.elCustomModal.classList.add('hidden');
@@ -851,10 +948,97 @@ export class HudController {
     }
 
     this.elModal.classList.remove('hidden');
+
+    // Exibe caixa de envio ao Ranking Global quando houve >= 1 rodada completada
+    const melhorPontuacao = Math.max(0, ...snapshot.jogadores.map((j) => j.pontuacao));
+    const podeEnviarRanking = melhorPontuacao >= 1 && !ehConvidadoOnline;
+    this.elGameOverSubmitBox.classList.toggle('hidden', !podeEnviarRanking);
+    this.btnEnviarRanking.disabled = false;
+    this.btnEnviarRanking.textContent = 'Enviar 🏆';
+    this.elGameOverSubmitFeedback.classList.add('hidden');
+    this.elGameOverSubmitFeedback.textContent = '';
+
     if (!ehConvidadoOnline) {
       this.btnReiniciar.focus();
     } else {
       this.btnModalMenu.focus();
     }
+  }
+
+  public abrirModalRanking(): void {
+    this.elRankingModal.classList.remove('hidden');
+    this.mostrarCarregandoRanking();
+    this.callbacks.onAbrirRanking(this.filtroRankingAtual);
+  }
+
+  private mostrarCarregandoRanking(): void {
+    this.elRankingLista.innerHTML = '<p class="ranking-vazio">Carregando ranking...</p>';
+  }
+
+  /**
+   * Renderiza a lista do Ranking Global (ou fallback local) no modal.
+   */
+  public renderizarRankingGlobal(resultado: ResultadoRanking): void {
+    this.elRankingOrigemBadge.textContent =
+      resultado.origem === 'global' ? '🌐 Global' : '💾 Local';
+
+    if (resultado.aviso) {
+      this.elRankingAviso.textContent = resultado.aviso;
+      this.elRankingAviso.classList.remove('hidden', 'erro');
+    } else {
+      this.elRankingAviso.classList.add('hidden');
+    }
+
+    if (resultado.registros.length === 0) {
+      this.elRankingLista.innerHTML =
+        '<p class="ranking-vazio">Nenhum recorde registrado ainda. Seja o primeiro!</p>';
+      return;
+    }
+
+    const rotuloDif: Record<Dificuldade, string> = {
+      facil: 'Fácil',
+      medio: 'Médio',
+      dificil: 'Difícil',
+    };
+
+    this.elRankingLista.innerHTML = '';
+    resultado.registros.forEach((reg, idx) => {
+      const linha = document.createElement('div');
+      linha.className = `ranking-item-global ${idx === 0 ? 'top-1' : ''}`;
+
+      const medalha = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+
+      const esq = document.createElement('div');
+      esq.className = 'ranking-item-esquerda';
+      const posSpan = document.createElement('span');
+      posSpan.textContent = medalha;
+      const nomeSpan = document.createElement('span');
+      nomeSpan.className = 'ranking-nome';
+      nomeSpan.textContent = reg.apelido;
+      esq.append(posSpan, nomeSpan);
+
+      const dir = document.createElement('div');
+      dir.className = 'ranking-item-direita';
+      const difTag = document.createElement('span');
+      difTag.className = 'ranking-dif-tag';
+      difTag.textContent = rotuloDif[reg.dificuldade] ?? reg.dificuldade;
+      const ptsSpan = document.createElement('strong');
+      ptsSpan.textContent = `${reg.pontos} pts`;
+      dir.append(difTag, ptsSpan);
+
+      linha.append(esq, dir);
+      this.elRankingLista.appendChild(linha);
+    });
+  }
+
+  /**
+   * Exibe o resultado do envio de pontuação dentro do modal de Game Over.
+   */
+  public exibirResultadoEnvioRanking(ok: boolean, mensagem: string): void {
+    this.elGameOverSubmitFeedback.textContent = mensagem;
+    this.elGameOverSubmitFeedback.classList.toggle('erro', !ok);
+    this.elGameOverSubmitFeedback.classList.remove('hidden');
+    this.btnEnviarRanking.disabled = ok;
+    this.btnEnviarRanking.textContent = ok ? 'Enviado ✓' : 'Enviar 🏆';
   }
 }

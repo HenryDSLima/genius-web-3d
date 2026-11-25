@@ -79,6 +79,17 @@
             </button>
 
             <button
+              id="btn-ranking"
+              type="button"
+              class="icon-btn"
+              aria-label="Abrir ranking global de recordes (Tecla R)"
+              title="Ranking Global (R)"
+            >
+              <span aria-hidden="true">🏆</span>
+              <span class="btn-label-desktop">Ranking</span>
+            </button>
+
+            <button
               id="btn-daltonismo"
               type="button"
               class="icon-btn"
@@ -271,6 +282,26 @@
 
           <div id="modal-ranking" class="modal-ranking hidden" aria-label="Classificação final"></div>
 
+          <!-- Envio opcional para o Ranking Global de recordes da partida -->
+          <div id="gameover-submit-box" class="gameover-submit-box hidden">
+            <span class="control-label">Registrar no Ranking Global</span>
+            <div class="online-row">
+              <label class="sr-only" for="input-apelido-ranking">Seu apelido para o ranking</label>
+              <input
+                id="input-apelido-ranking"
+                type="text"
+                class="text-input"
+                maxlength="16"
+                placeholder="Seu apelido"
+                autocomplete="nickname"
+              />
+              <button id="btn-enviar-ranking" type="button" class="secondary-btn btn-compact">
+                Enviar 🏆
+              </button>
+            </div>
+            <p id="gameover-submit-feedback" class="online-feedback hidden" role="status" aria-live="polite"></p>
+          </div>
+
           <div class="modal-actions">
             <button id="btn-reiniciar" type="button" class="primary-btn">Jogar Novamente</button>
             <button id="btn-modal-menu" type="button" class="secondary-btn">Voltar ao Menu 3D</button>
@@ -312,6 +343,40 @@
           </div>
 
           <button id="btn-fechar-custom" type="button" class="primary-btn">Concluir</button>
+        </div>
+      </div>
+
+      <!-- Modal de Ranking Global (Top 15 de pontos feitos em uma única partida) -->
+      <div
+        id="ranking-modal"
+        class="modal-backdrop hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ranking-titulo"
+      >
+        <div class="modal-card custom-modal-card">
+          <div class="custom-header">
+            <h2 id="ranking-titulo" class="modal-title custom-title">🏆 Ranking Global</h2>
+            <span id="ranking-origem-badge" class="points-pill">🌐 Global</span>
+          </div>
+
+          <div class="segmented" role="group" aria-label="Filtrar ranking por dificuldade">
+            <button type="button" class="seg-btn active" data-filtro-ranking="todas">Geral</button>
+            <button type="button" class="seg-btn" data-filtro-ranking="facil">Fácil</button>
+            <button type="button" class="seg-btn" data-filtro-ranking="medio">Médio</button>
+            <button type="button" class="seg-btn" data-filtro-ranking="dificil">Difícil</button>
+          </div>
+
+          <p id="ranking-aviso" class="online-feedback hidden" role="status" aria-live="polite"></p>
+
+          <div id="ranking-global-lista" class="ranking-global-lista" aria-label="Melhores pontuações">
+            <p class="ranking-vazio">Carregando ranking...</p>
+          </div>
+
+          <div class="ranking-modal-footer">
+            <button id="btn-atualizar-ranking" type="button" class="secondary-btn btn-mini">↻ Atualizar</button>
+            <button id="btn-fechar-ranking" type="button" class="primary-btn">Fechar</button>
+          </div>
         </div>
       </div>
     </div>

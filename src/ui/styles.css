@@ -974,6 +974,95 @@ button,
   opacity: 0.85;
 }
 
+/* ======================== RANKING GLOBAL (SUPABASE) ======================== */
+.gameover-submit-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  border-radius: 1.15rem;
+  background: var(--surface-well);
+  border: 2px dashed var(--border-dashed);
+}
+
+.ranking-global-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.42rem;
+  max-height: 44vh;
+  overflow-y: auto;
+  padding-right: 0.2rem;
+}
+
+.ranking-item-global {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-pill);
+  border: 2px solid var(--border-card);
+  font-size: 0.94rem;
+  font-weight: 700;
+}
+
+.ranking-item-global.top-1 {
+  background: var(--sunny);
+  color: var(--text-on-sunny);
+  border-color: #ffffff;
+  box-shadow: 0 3px 0 var(--btn-lip-accent);
+}
+
+.ranking-item-esquerda {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.ranking-nome {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranking-dif-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.14rem 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-well);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.ranking-item-global.top-1 .ranking-dif-tag {
+  background: rgba(29, 34, 48, 0.16);
+  color: var(--text-on-sunny);
+}
+
+.ranking-item-direita {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.ranking-vazio {
+  text-align: center;
+  padding: 1.25rem 0.5rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.ranking-modal-footer {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+}
+
 /* ======================== FOCO ACESSÍVEL (TECLADO) ======================== */
 button:focus-visible {
   outline: 3.5px solid #ffd43b;

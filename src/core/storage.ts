@@ -69,6 +69,7 @@ export interface PreferenciasSalvas {
   corCarcaca: CorCarcaca;
   cenario: Cenario3D;
   quantidadeJogadores: number;
+  apelidoSalvo: string;
 }
 
 const CHAVE_STORAGE = 'genius_3d_unicap_v1';
@@ -87,6 +88,7 @@ export const PREFERENCIAS_PADRAO: PreferenciasSalvas = {
   corCarcaca: 'creme',
   cenario: 'estudio',
   quantidadeJogadores: 1,
+  apelidoSalvo: '',
 };
 
 /**
@@ -170,6 +172,8 @@ export class RepositorioGenius {
           dados.quantidadeJogadores <= 4
             ? Math.floor(dados.quantidadeJogadores)
             : PREFERENCIAS_PADRAO.quantidadeJogadores,
+        apelidoSalvo:
+          typeof dados.apelidoSalvo === 'string' ? dados.apelidoSalvo.trim().slice(0, 16) : '',
       };
     } catch {
       return { ...PREFERENCIAS_PADRAO };

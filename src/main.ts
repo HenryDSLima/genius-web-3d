@@ -9,6 +9,7 @@ import './ui/styles.css';
 import { SoundEngine } from './audio/soundEngine';
 import { ConfiguracaoTempo, CorGenius, EstadoPartidaSnapshot, GameEngine } from './core/gameEngine';
 import { Cenario3D, CorCarcaca, Dificuldade, RepositorioGenius, TemaVisual } from './core/storage';
+import { FiltroRanking, LeaderboardService } from './network/leaderboardService';
 import { OnlineManager } from './network/onlineManager';
 import {
   criarLinkConvite,
@@ -33,6 +34,7 @@ class GeniusApp {
   private readonly scene: GeniusScene;
   private readonly hud: HudController;
   private readonly online: OnlineManager;
+  private readonly leaderboard: LeaderboardService;
 
   // Token incremental que cancela com segurança qualquer sequência assíncrona anterior
   private tokenFluxo = 0;
@@ -42,6 +44,8 @@ class GeniusApp {
   private cenarioAtual: Cenario3D = 'estudio';
   private ultimaQtdJogadores = 1;
   private ultimaDificuldade: Dificuldade = 'medio';
+  private ultimaPontuacaoParaRanking = 0;
+  private ultimaDificuldadeParaRanking: Dificuldade = 'medio';
 
   // Controle de partida Multiplayer Online
   private emPartidaOnline = false;
@@ -60,6 +64,7 @@ class GeniusApp {
 
     this.engine = new GameEngine({ repositorio: this.repositorio });
     this.sound = new SoundEngine(prefs.somAtivo);
+    this.leaderboard = new LeaderboardService();
 
     const container = document.getElementById('canvas-container');
     if (!container) {
@@ -159,6 +164,12 @@ class GeniusApp {
       onSomConfirmarUI: () => this.sound.tocarConfirmarUI(),
       onSomVoltarUI: () => this.sound.tocarVoltarUI(),
       onAreaSeguraAlterada: (area) => this.scene.cameraController.definirAreaSegura(area),
+      onAbrirRanking: (filtro) => {
+        void this.carregarRankingGlobal(filtro);
+      },
+      onEnviarPontuacaoRanking: (apelido) => {
+        void this.enviarPontuacaoParaRanking(apelido);
+      },
     });
 
     this.hud.sincronizarEstado(this.engine.obterEstado());
@@ -797,6 +808,8 @@ class GeniusApp {
     });
     this.hud.definirMensagemStatus('Game Over!', 'erro');
     this.scene.modelo.atualizarDisplay('!!', 'FIM', '#ef4444');
+    this.ultimaPontuacaoParaRanking = Math.max(0, ...snapshot.jogadores.map((j) => j.pontuacao));
+    this.ultimaDificuldadeParaRanking = snapshot.dificuldade;
 
     window.setTimeout(() => {
       if (token !== this.tokenFluxo) return;
@@ -839,6 +852,24 @@ class GeniusApp {
     this.scene.definirCenario(cenario);
     const prefs = this.repositorio.atualizar({ cenario });
     this.hud.atualizarCustomizacao(this.corCarcacaAtual, this.cenarioAtual, prefs.pontosTotais);
+  }
+
+  private async carregarRankingGlobal(filtro: FiltroRanking): Promise<void> {
+    const resultado = await this.leaderboard.buscarTop(filtro);
+    this.hud.renderizarRankingGlobal(resultado);
+  }
+
+  private async enviarPontuacaoParaRanking(apelido: string): Promise<void> {
+    const apelidoLimpo = apelido.trim().slice(0, 16);
+    if (apelidoLimpo) {
+      this.repositorio.atualizar({ apelidoSalvo: apelidoLimpo });
+    }
+    const res = await this.leaderboard.enviarPontuacao({
+      apelido: apelidoLimpo || 'Jogador',
+      pontos: this.ultimaPontuacaoParaRanking,
+      dificuldade: this.ultimaDificuldadeParaRanking,
+    });
+    this.hud.exibirResultadoEnvioRanking(res.ok, res.mensagem);
   }
 
   private alternarDaltonismo(): void {
