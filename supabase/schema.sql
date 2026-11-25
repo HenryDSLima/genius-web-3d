@@ -18,8 +18,12 @@ create index if not exists idx_ranking_genius_pontos
 create index if not exists idx_ranking_genius_dif_pontos
   on public.ranking_genius (dificuldade, pontos desc, criado_em asc);
 
--- Ativa Row Level Security (RLS)
+-- Ativa Row Level Security (RLS) e permissões explícitas para anon/authenticated
 alter table public.ranking_genius enable row level security;
+
+grant usage on schema public to anon, authenticated;
+grant select, insert on table public.ranking_genius to anon, authenticated;
+grant usage, select on sequence public.ranking_genius_id_seq to anon, authenticated;
 
 -- Permite leitura pública do ranking (SELECT)
 drop policy if exists "Leitura publica do ranking" on public.ranking_genius;

@@ -80,6 +80,21 @@ export class LeaderboardService {
   }
 
   /**
+   * Monta os cabeçalhos compatíveis tanto com chaves legadas (JWT anon)
+   * quanto com as novas chaves Publishable (sb_publishable_...) do Supabase.
+   */
+  private criarCabecalhosSupabase(extras?: Record<string, string>): Record<string, string> {
+    const headers: Record<string, string> = {
+      apikey: this.config.anonKey,
+      ...extras,
+    };
+    if (!this.config.anonKey.startsWith('sb_publishable_')) {
+      headers.Authorization = `Bearer ${this.config.anonKey}`;
+    }
+    return headers;
+  }
+
+  /**
    * Busca o Top 15 de pontuações em uma única partida (Global via Supabase ou Local fallback).
    */
   public async buscarTop(filtro: FiltroRanking = 'todas'): Promise<ResultadoRanking> {
@@ -105,11 +120,7 @@ export class LeaderboardService {
         `${this.config.url}/rest/v1/ranking_genius?${params.toString()}`,
         {
           method: 'GET',
-          headers: {
-            apikey: this.config.anonKey,
-            Authorization: `Bearer ${this.config.anonKey}`,
-            Accept: 'application/json',
-          },
+          headers: this.criarCabecalhosSupabase({ Accept: 'application/json' }),
         }
       );
 
@@ -170,12 +181,10 @@ export class LeaderboardService {
     try {
       const resposta = await this.fetchFn(`${this.config.url}/rest/v1/ranking_genius`, {
         method: 'POST',
-        headers: {
-          apikey: this.config.anonKey,
-          Authorization: `Bearer ${this.config.anonKey}`,
+        headers: this.criarCabecalhosSupabase({
           'Content-Type': 'application/json',
           Prefer: 'return=minimal',
-        },
+        }),
         body: JSON.stringify({
           apelido: apelidoLimpo,
           pontos: pontosLimpos,
