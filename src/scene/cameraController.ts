@@ -3,7 +3,8 @@
 // Gerencia a alternância suave entre:
 // 1. Modo SHOWCASE (Menu): rotação orbital passiva + OrbitControls livre.
 // 2. Modo JOGANDO (Partida): transição animada até visão Top-Down travada,
-//    com recálculo automático de distância para qualquer proporção de tela.
+//    com recálculo automático de distância e centro baseados na Área Segura
+//    real medida entre os elementos visíveis do HUD (independe de DPI/resolução).
 // Atende aos requisitos RF-06 e RNF-01.
 // ============================================================================
 
@@ -11,6 +12,18 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 export type ModoCamera = 'SHOWCASE' | 'JOGANDO';
+
+/**
+ * Retângulo livre (em pixels CSS) disponível entre os elementos visíveis do HUD.
+ */
+export interface AreaSeguraHud {
+  esquerda: number;
+  topo: number;
+  largura: number;
+  altura: number;
+  viewportLargura: number;
+  viewportAltura: number;
+}
 
 /**
  * Função de suavização (ease-in-out cúbica) para transições fluidas sem saltos bruscos.
@@ -26,29 +39,47 @@ export class CameraController {
   private modoAtual: ModoCamera = 'SHOWCASE';
   private emTransicao = false;
   private progressoTransicao = 0;
-  private duracaoTransicao = 1.05; // segundos
+  private duracaoTransicao = 0.95; // segundos
 
   private readonly posInicial = new THREE.Vector3();
   private readonly posDestino = new THREE.Vector3();
   private readonly alvoInicial = new THREE.Vector3();
   private readonly alvoDestino = new THREE.Vector3(0, 0.2, 0);
 
-  // Deslocamento vertical do frustum (viewOffset) para elevar o modelo 3D
-  // acima do menu inferior apenas na tela inicial em celulares retrato.
-  private offsetVerticalInicial = 0;
-  private offsetVerticalAlvo = 0;
-  private offsetVerticalAtual = 0;
+  // Área segura real medida entre os elementos do HUD
+  private areaSegura: AreaSeguraHud;
+
+  // Deslocamento do frustum (viewOffset) em fração do viewport para centralizar
+  // o modelo 3D exatamente no centro da área livre entre os elementos do HUD.
+  private offsetXInicial = 0;
+  private offsetXAlvo = 0;
+  private offsetXAtual = 0;
+
+  private offsetYInicial = 0;
+  private offsetYAlvo = 0;
+  private offsetYAtual = 0;
 
   constructor(camera: THREE.PerspectiveCamera, controls: OrbitControls) {
     this.camera = camera;
     this.controls = controls;
+
+    const w = Math.max(1, window.innerWidth);
+    const h = Math.max(1, window.innerHeight);
+    this.areaSegura = {
+      esquerda: 0,
+      topo: 0,
+      largura: w,
+      altura: h,
+      viewportLargura: w,
+      viewportAltura: h,
+    };
 
     // Configuração inicial do OrbitControls para o modo Showcase
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.06;
     this.controls.enablePan = false;
     this.controls.minDistance = 7.5;
-    this.controls.maxDistance = 44;
+    this.controls.maxDistance = 60;
     this.controls.minPolarAngle = 0.18;
     this.controls.maxPolarAngle = Math.PI / 2.25;
     this.controls.autoRotate = true;
@@ -60,75 +91,124 @@ export class CameraController {
     this.camera.position.copy(posShowcase);
     this.controls.update();
 
-    this.offsetVerticalAlvo = this.calcularOffsetVerticalAlvo();
-    this.offsetVerticalAtual = this.offsetVerticalAlvo;
-    this.aplicarOffsetVertical();
+    this.recalcularOffsetsAlvo();
+    this.offsetXAtual = this.offsetXAlvo;
+    this.offsetYAtual = this.offsetYAlvo;
+    this.aplicarViewOffset();
   }
 
   /**
-   * Define o deslocamento vertical do enquadramento no menu inicial (SHOWCASE):
-   * - Celular retrato (aspect < 0.78): eleva ~18.5% da altura da tela para ficar
-   *   centralizado acima do menu inferior.
-   * - Desktop / paisagem: menu fica na lateral esquerda, então mantém centralizado (0).
-   * - Modo JOGANDO (Top-Down): mantém centralização padrão (0).
+   * Recebe as dimensões reais da área livre entre os elementos visíveis do HUD
+   * e ajusta o centro (viewOffset) e a distância da câmera para evitar sobreposição
+   * em qualquer resolução, DPI ou escala de fonte.
    */
-  private calcularOffsetVerticalAlvo(): number {
-    if (this.modoAtual === 'SHOWCASE' && this.camera.aspect < 0.78) {
-      return 0.185;
+  public definirAreaSegura(area: AreaSeguraHud): void {
+    const mudou =
+      Math.abs(area.esquerda - this.areaSegura.esquerda) > 1 ||
+      Math.abs(area.topo - this.areaSegura.topo) > 1 ||
+      Math.abs(area.largura - this.areaSegura.largura) > 1 ||
+      Math.abs(area.altura - this.areaSegura.altura) > 1 ||
+      Math.abs(area.viewportLargura - this.areaSegura.viewportLargura) > 1 ||
+      Math.abs(area.viewportAltura - this.areaSegura.viewportAltura) > 1;
+
+    if (!mudou) return;
+
+    this.areaSegura = { ...area };
+    this.recalcularOffsetsAlvo();
+
+    if (this.emTransicao) {
+      this.posDestino.copy(
+        this.modoAtual === 'JOGANDO' ? this.calcularPosicaoTopDown() : this.calcularPosicaoShowcase()
+      );
+      return;
     }
-    return 0;
+
+    if (this.modoAtual === 'JOGANDO') {
+      this.posDestino.copy(this.calcularPosicaoTopDown());
+    } else {
+      // No modo Showcase, garante que o modelo caiba integralmente na nova área livre
+      const distMinimaSegura = this.calcularDistanciaSegura(0.84, 0.78);
+      const direcao = this.camera.position.clone().sub(this.controls.target);
+      const distAtual = direcao.length();
+      if (distAtual > 0.001 && Math.abs(distAtual - distMinimaSegura) > 0.8) {
+        direcao.setLength(distMinimaSegura);
+        this.camera.position.copy(this.controls.target).add(direcao);
+        this.controls.update();
+      }
+    }
+  }
+
+  /**
+   * Calcula os offsets X e Y (fração do viewport) necessários para alinhar a origem 3D
+   * exatamente ao centro geométrico da área segura entre os elementos do HUD.
+   */
+  private recalcularOffsetsAlvo(): void {
+    const w = Math.max(1, this.areaSegura.viewportLargura);
+    const h = Math.max(1, this.areaSegura.viewportAltura);
+
+    const centroSeguroX = this.areaSegura.esquerda + this.areaSegura.largura / 2;
+    const centroSeguroY = this.areaSegura.topo + this.areaSegura.altura / 2;
+
+    // setViewOffset positivo desloca a janela para direita/baixo -> modelo 3D vai para esquerda/cima
+    this.offsetXAlvo = (w / 2 - centroSeguroX) / w;
+    this.offsetYAlvo = (h / 2 - centroSeguroY) / h;
   }
 
   /**
    * Aplica o viewOffset na câmera sem alterar o pivô do OrbitControls.
    */
-  private aplicarOffsetVertical(): void {
-    const largura = Math.max(1, window.innerWidth);
-    const altura = Math.max(1, window.innerHeight);
+  private aplicarViewOffset(): void {
+    const largura = Math.max(1, this.areaSegura.viewportLargura || window.innerWidth);
+    const altura = Math.max(1, this.areaSegura.viewportAltura || window.innerHeight);
 
-    if (Math.abs(this.offsetVerticalAtual) < 0.0005) {
+    if (Math.abs(this.offsetXAtual) < 0.0005 && Math.abs(this.offsetYAtual) < 0.0005) {
       if (this.camera.view !== null) {
         this.camera.clearViewOffset();
       }
       return;
     }
 
-    // Valor positivo em Y desloca o frustum para baixo, elevando o modelo 3D na tela
     this.camera.setViewOffset(
       largura,
       altura,
-      0,
-      Math.round(altura * this.offsetVerticalAtual),
+      Math.round(largura * this.offsetXAtual),
+      Math.round(altura * this.offsetYAtual),
       largura,
       altura
     );
   }
 
   /**
-   * Calcula a distância ideal para o tabuleiro (raio ~4.45) caber com folga
-   * em telas retrato (360x800), paisagem (800x360), tablet e desktop (RNF-01).
+   * Calcula a distância necessária para o tabuleiro (raio ~4.45) caber com folga
+   * DENTRO do retângulo livre (areaSegura.largura x areaSegura.altura), independente
+   * de resolução, orientação ou DPI do aparelho.
    */
-  private calcularDistanciaIdeal(margemFator: number): number {
+  private calcularDistanciaSegura(fatorOcupacao: number, fatorAlturaProjetada = 1): number {
     const raioTabuleiro = 4.55;
     const fovVerticalRad = THREE.MathUtils.degToRad(this.camera.fov);
     const aspect = Math.max(0.35, this.camera.aspect);
+    const tanMeioFovV = Math.tan(fovVerticalRad / 2);
+    const tanMeioFovH = tanMeioFovV * aspect;
 
-    // Distância necessária para caber na vertical
-    const distVertical = (raioTabuleiro * margemFator) / Math.tan(fovVerticalRad / 2);
+    const w = Math.max(1, this.areaSegura.viewportLargura);
+    const h = Math.max(1, this.areaSegura.viewportAltura);
 
-    // Distância necessária para caber na horizontal (crítico em celulares retrato)
-    const fovHorizontalRad = 2 * Math.atan(Math.tan(fovVerticalRad / 2) * aspect);
-    const distHorizontal = (raioTabuleiro * margemFator) / Math.tan(fovHorizontalRad / 2);
+    // Fração útil do viewport (garante piso mínimo seguro para não disparar ao infinito)
+    const fracaoW = Math.max(0.28, Math.min(1, this.areaSegura.largura / w));
+    const fracaoH = Math.max(0.24, Math.min(1, this.areaSegura.altura / h));
 
-    return Math.max(distVertical, distHorizontal);
+    const distVertical = (raioTabuleiro * fatorAlturaProjetada) / (tanMeioFovV * fracaoH * fatorOcupacao);
+    const distHorizontal = raioTabuleiro / (tanMeioFovH * fracaoW * fatorOcupacao);
+
+    return THREE.MathUtils.clamp(Math.max(distVertical, distHorizontal), 9.5, 58);
   }
 
   /**
    * Retorna a posição em perspectiva 3/4 usada no modo Showcase (Menu).
    */
   private calcularPosicaoShowcase(): THREE.Vector3 {
-    const dist = this.calcularDistanciaIdeal(1.38);
-    // Eleva a câmera ~42 graus para exibir o volume 3D e os 4 quadrantes
+    // Na visão 3/4 inclinada, a projeção vertical do disco é ~0.78 do diâmetro horizontal
+    const dist = this.calcularDistanciaSegura(0.84, 0.78);
     const elevacao = dist * 0.68;
     const raioHorizontal = dist * 0.78;
     return new THREE.Vector3(raioHorizontal * 0.45, elevacao, raioHorizontal * 0.89);
@@ -139,9 +219,7 @@ export class CameraController {
    * O deslocamento mínimo em Z (+0.01) evita gimbal lock mantendo o Norte alinhado.
    */
   private calcularPosicaoTopDown(): THREE.Vector3 {
-    const margem = this.camera.aspect < 0.8 ? 1.24 : 1.34;
-    const dist = this.calcularDistanciaIdeal(margem);
-    // Pequeno offset vertical no alvo para equilibrar com a barra superior do HUD
+    const dist = this.calcularDistanciaSegura(0.86, 1.0);
     return new THREE.Vector3(0, dist, 0.01);
   }
 
@@ -152,19 +230,18 @@ export class CameraController {
     this.modoAtual = novoModo;
     this.posInicial.copy(this.camera.position);
     this.alvoInicial.copy(this.controls.target);
-    this.offsetVerticalInicial = this.offsetVerticalAtual;
-    this.offsetVerticalAlvo = this.calcularOffsetVerticalAlvo();
+    this.offsetXInicial = this.offsetXAtual;
+    this.offsetYInicial = this.offsetYAtual;
+    this.recalcularOffsetsAlvo();
     this.progressoTransicao = 0;
     this.emTransicao = true;
 
     if (novoModo === 'JOGANDO') {
-      // Desativa rotação automática e trava controle manual durante a partida
       this.controls.autoRotate = false;
       this.controls.enabled = false;
       this.posDestino.copy(this.calcularPosicaoTopDown());
       this.alvoDestino.set(0, 0.25, 0);
     } else {
-      // Ao voltar ao menu, prepara transição suave para perspectiva orbital
       this.controls.enabled = false;
       this.posDestino.copy(this.calcularPosicaoShowcase());
       this.alvoDestino.set(0, 0.2, 0);
@@ -176,27 +253,26 @@ export class CameraController {
    * ou gira o smartphone entre retrato e paisagem (RNF-01).
    */
   public aoRedimensionar(): void {
-    this.offsetVerticalAlvo = this.calcularOffsetVerticalAlvo();
+    this.recalcularOffsetsAlvo();
     if (!this.emTransicao) {
-      this.offsetVerticalAtual = this.offsetVerticalAlvo;
+      this.offsetXAtual = this.offsetXAlvo;
+      this.offsetYAtual = this.offsetYAlvo;
     }
-    this.aplicarOffsetVertical();
+    this.aplicarViewOffset();
 
     if (this.modoAtual === 'JOGANDO') {
       const novoDestino = this.calcularPosicaoTopDown();
-      if (this.emTransicao) {
-        this.posDestino.copy(novoDestino);
-      } else {
+      this.posDestino.copy(novoDestino);
+      if (!this.emTransicao) {
         this.camera.position.copy(novoDestino);
         this.camera.lookAt(this.alvoDestino);
       }
     } else if (this.emTransicao) {
       this.posDestino.copy(this.calcularPosicaoShowcase());
     } else {
-      // Garante que o tabuleiro nunca fique cortado ao girar ou estreitar a tela no modo Showcase
-      const distMinima = this.calcularDistanciaIdeal(1.22);
+      const distMinima = this.calcularDistanciaSegura(0.84, 0.78);
       const direcao = this.camera.position.clone().sub(this.controls.target);
-      if (direcao.length() < distMinima) {
+      if (direcao.length() > 0.001 && direcao.length() < distMinima) {
         direcao.setLength(distMinima);
         this.camera.position.copy(this.controls.target).add(direcao);
         this.controls.update();
@@ -205,7 +281,7 @@ export class CameraController {
   }
 
   /**
-   * Atualiza a interpolação da câmera ou o OrbitControls a cada frame.
+   * Atualiza a interpolação da câmera, o viewOffset e o OrbitControls a cada frame.
    */
   public atualizar(deltaSegundos: number): void {
     if (this.emTransicao) {
@@ -214,14 +290,16 @@ export class CameraController {
 
       this.camera.position.lerpVectors(this.posInicial, this.posDestino, t);
       this.controls.target.lerpVectors(this.alvoInicial, this.alvoDestino, t);
-      this.offsetVerticalAtual = THREE.MathUtils.lerp(this.offsetVerticalInicial, this.offsetVerticalAlvo, t);
-      this.aplicarOffsetVertical();
+      this.offsetXAtual = THREE.MathUtils.lerp(this.offsetXInicial, this.offsetXAlvo, t);
+      this.offsetYAtual = THREE.MathUtils.lerp(this.offsetYInicial, this.offsetYAlvo, t);
+      this.aplicarViewOffset();
       this.camera.lookAt(this.controls.target);
 
       if (this.progressoTransicao >= 1) {
         this.emTransicao = false;
-        this.offsetVerticalAtual = this.offsetVerticalAlvo;
-        this.aplicarOffsetVertical();
+        this.offsetXAtual = this.offsetXAlvo;
+        this.offsetYAtual = this.offsetYAlvo;
+        this.aplicarViewOffset();
         if (this.modoAtual === 'SHOWCASE') {
           this.controls.enabled = true;
           this.controls.autoRotate = true;
@@ -231,9 +309,23 @@ export class CameraController {
       return;
     }
 
+    // Suaviza ajustes contínuos de viewOffset e distância quando o HUD muda de altura
+    // (ex.: troca de aba Local/Online ou surgimento de jogadores no multiplayer)
+    const fatorSuave = Math.min(1, deltaSegundos * 10);
+    const diffX = this.offsetXAlvo - this.offsetXAtual;
+    const diffY = this.offsetYAlvo - this.offsetYAtual;
+    if (Math.abs(diffX) > 0.0004 || Math.abs(diffY) > 0.0004) {
+      this.offsetXAtual += diffX * fatorSuave;
+      this.offsetYAtual += diffY * fatorSuave;
+      this.aplicarViewOffset();
+    }
+
     if (this.modoAtual === 'SHOWCASE') {
       this.controls.update();
     } else {
+      if (this.camera.position.distanceToSquared(this.posDestino) > 0.0004) {
+        this.camera.position.lerp(this.posDestino, fatorSuave);
+      }
       this.camera.lookAt(this.alvoDestino);
     }
   }

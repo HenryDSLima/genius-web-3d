@@ -18,6 +18,7 @@ import {
 } from '../core/storage';
 import { PapelOnline } from '../network/onlineManager';
 import { EstadoLobbyOnline, normalizarCodigoSala } from '../network/onlineProtocol';
+import { AreaSeguraHud } from '../scene/cameraController';
 
 export type TipoStatusVisual = 'padrao' | 'aguardando' | 'sucesso' | 'erro';
 export type AbaMenu = 'local' | 'online';
@@ -48,6 +49,9 @@ export interface CallbacksHud {
   onSomCliqueUI: () => void;
   onSomConfirmarUI: () => void;
   onSomVoltarUI: () => void;
+
+  // Callback disparado sempre que a área livre entre elementos do HUD muda
+  onAreaSeguraAlterada: (area: AreaSeguraHud) => void;
 }
 
 /**
@@ -135,6 +139,8 @@ export class HudController {
   private estadoAtual: EstadoPartidaSnapshot['estado'] = 'MENU';
   private emPartidaOnline = false;
   private papelOnline: PapelOnline = 'NENHUM';
+  private rafMedicaoId: number | null = null;
+  private readonly resizeObserver: ResizeObserver | null = null;
 
   constructor(preferenciasIniciais: PreferenciasSalvas, callbacks: CallbacksHud) {
     this.callbacks = callbacks;
@@ -197,6 +203,27 @@ export class HudController {
 
     this.aplicarPreferenciasIniciais(preferenciasIniciais);
     this.registrarEventos();
+
+    // Observa mudanças de tamanho em todos os blocos do HUD (DPI, fonte, abas, rotação)
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() => this.agendarMedicaoAreaSegura());
+      const alvosObservados = [
+        document.querySelector('.topbar'),
+        document.querySelector('.brand'),
+        document.querySelector('.topbar-right'),
+        this.elMenuPanel,
+        this.elStatusBanner,
+        this.elMultiplayerStrip,
+        this.elHudFooter,
+      ];
+      for (const el of alvosObservados) {
+        if (el) this.resizeObserver.observe(el);
+      }
+    }
+
+    window.addEventListener('resize', () => this.agendarMedicaoAreaSegura());
+    window.visualViewport?.addEventListener('resize', () => this.agendarMedicaoAreaSegura());
+    this.agendarMedicaoAreaSegura();
   }
 
   private obterElemento(id: string): HTMLElement {
@@ -380,6 +407,7 @@ export class HudController {
 
     this.panelLocal.classList.toggle('hidden', !ehLocal);
     this.panelOnline.classList.toggle('hidden', ehLocal);
+    this.agendarMedicaoAreaSegura();
   }
 
   /**
@@ -403,6 +431,7 @@ export class HudController {
     this.elOnlineFeedback.textContent = mensagem;
     this.elOnlineFeedback.classList.toggle('erro', ehErro);
     this.elOnlineFeedback.classList.remove('hidden');
+    this.agendarMedicaoAreaSegura();
   }
 
   /**
@@ -414,6 +443,7 @@ export class HudController {
     if (!lobby || papel === 'NENHUM') {
       this.onlineConnectView.classList.remove('hidden');
       this.onlineLobbyView.classList.add('hidden');
+      this.agendarMedicaoAreaSegura();
       return;
     }
 
@@ -449,6 +479,7 @@ export class HudController {
         ? `Iniciar Partida Online (${total} jogadores)`
         : `Aguardando jogadores (${total}/4)...`;
     }
+    this.agendarMedicaoAreaSegura();
   }
 
   public mostrarConfirmacaoCopia(): void {
@@ -627,6 +658,90 @@ export class HudController {
     if (tipo === 'sucesso') this.elStatusBanner.classList.add('status-sucesso');
     if (tipo === 'erro') this.elStatusBanner.classList.add('status-erro');
     if (tipo === 'aguardando') this.elStatusBanner.classList.add('status-aguardando');
+    this.agendarMedicaoAreaSegura();
+  }
+
+  /**
+   * Agenda a medição da área livre do HUD no próximo frame de renderização,
+   * garantindo que o layout CSS já tenha sido recalculado pelo navegador.
+   */
+  public agendarMedicaoAreaSegura(): void {
+    if (this.rafMedicaoId !== null) return;
+    this.rafMedicaoId = window.requestAnimationFrame(() => {
+      this.rafMedicaoId = null;
+      this.callbacks.onAreaSeguraAlterada(this.medirAreaSegura());
+    });
+  }
+
+  /**
+   * Calcula o retângulo livre real entre os elementos visíveis do HUD
+   * (barra superior, menu, banner de status, jogadores e rodapé),
+   * mantendo o Genius 3D sempre centralizado e visível em qualquer DPI/resolução.
+   */
+  public medirAreaSegura(): AreaSeguraHud {
+    const w = Math.max(1, window.innerWidth);
+    const h = Math.max(1, window.innerHeight);
+    const margem = 10;
+
+    let esquerda = margem;
+    let direita = w - margem;
+    let topo = margem;
+    let base = h - margem;
+
+    const ehDesktopLateral = w >= 901 && h >= 520;
+
+    const visivel = (el: Element | null): DOMRect | null => {
+      if (!el || el.classList.contains('hidden')) return null;
+      const rect = el.getBoundingClientRect();
+      if (rect.width <= 1 || rect.height <= 1) return null;
+      return rect;
+    };
+
+    if (ehDesktopLateral) {
+      // Desktop: marca/status no topo, atalhos na base, menu/jogadores à esquerda, barra vertical à direita
+      const rectStatus = visivel(this.elStatusBanner);
+      if (rectStatus) topo = Math.max(topo, rectStatus.bottom + margem);
+
+      const rectFooter = visivel(this.elHudFooter);
+      if (rectFooter) base = Math.min(base, rectFooter.top - margem);
+
+      const rectMenu = visivel(this.elMenuPanel);
+      if (rectMenu) esquerda = Math.max(esquerda, rectMenu.right + margem);
+
+      const rectPlayers = visivel(this.elMultiplayerStrip);
+      if (rectPlayers) esquerda = Math.max(esquerda, rectPlayers.right + margem);
+
+      const rectRight = visivel(document.querySelector('.topbar-right'));
+      if (rectRight) direita = Math.min(direita, rectRight.left - margem);
+    } else {
+      // Mobile / Tablet: topbar + status no topo, menu ou jogadores na base
+      const rectTopbar = visivel(document.querySelector('.topbar'));
+      if (rectTopbar) topo = Math.max(topo, rectTopbar.bottom + margem);
+
+      const rectStatus = visivel(this.elStatusBanner);
+      if (rectStatus) topo = Math.max(topo, rectStatus.bottom + margem);
+
+      const rectMenu = visivel(this.elMenuPanel);
+      if (rectMenu) base = Math.min(base, rectMenu.top - margem);
+
+      const rectPlayers = visivel(this.elMultiplayerStrip);
+      if (rectPlayers) base = Math.min(base, rectPlayers.top - margem);
+
+      const rectFooter = visivel(this.elHudFooter);
+      if (rectFooter) base = Math.min(base, rectFooter.top - margem);
+    }
+
+    const larguraLivre = Math.max(w * 0.25, direita - esquerda);
+    const alturaLivre = Math.max(h * 0.22, base - topo);
+
+    return {
+      esquerda,
+      topo,
+      largura: larguraLivre,
+      altura: alturaLivre,
+      viewportLargura: w,
+      viewportAltura: h,
+    };
   }
 
   /**
@@ -664,6 +779,8 @@ export class HudController {
         opcoesOnline?.emPartidaOnline ? opcoesOnline.meuJogadorId : 0
       );
     }
+
+    this.agendarMedicaoAreaSegura();
   }
 
   private renderizarFaixaMultiplayer(

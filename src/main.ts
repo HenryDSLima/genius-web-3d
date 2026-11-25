@@ -158,6 +158,7 @@ class GeniusApp {
       onSomCliqueUI: () => this.sound.tocarCliqueUI(),
       onSomConfirmarUI: () => this.sound.tocarConfirmarUI(),
       onSomVoltarUI: () => this.sound.tocarVoltarUI(),
+      onAreaSeguraAlterada: (area) => this.scene.cameraController.definirAreaSegura(area),
     });
 
     this.hud.sincronizarEstado(this.engine.obterEstado());
